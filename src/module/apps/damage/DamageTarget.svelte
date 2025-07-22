@@ -22,11 +22,11 @@
       : "target-miss";
 
   function addBonusDamage() {
-    target.bonusDamage = [...target.bonusDamage, { type: DamageType.Kinetic, val: "1d6" }];
+    target.rawBonusDamage = [...target.rawBonusDamage, { type: DamageType.Kinetic, val: "1d6" }];
   }
 
   function removeBonusDamage(idx: number) {
-    target.bonusDamage = target.bonusDamage.filter((_, i) => i !== idx);
+    target.rawBonusDamage = target.rawBonusDamage.filter((_, i) => i !== idx);
   }
 
   function toggleAP(event: any) {
@@ -62,7 +62,7 @@
     <div class="card clipped target-bonus-damage">
       <span class="flexrow" style="width: 100%">
         <b class="target-bonus-damage-title">Bonus</b>
-        {#if target.bonusDamage.length}
+        {#if target.rawBonusDamage.length}
           <button
             class="lancer-button add-damage-type small"
             type="button"
@@ -73,12 +73,12 @@
           </button>
         {/if}
       </span>
-      {#each target.bonusDamage as damage, i (i)}
+      {#each target.rawBonusDamage as damage, i (i)}
         <div class="target-bonus-damage-wrapper">
           <DamageInput bind:damage on:delete={() => removeBonusDamage(i)} />
         </div>
       {/each}
-      {#if !target.bonusDamage.length}
+      {#if !target.rawBonusDamage.length}
         <button
           class="lancer-button add-damage-type"
           type="button"

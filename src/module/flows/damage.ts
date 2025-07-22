@@ -282,7 +282,7 @@ function _collectBonusDamage(state: FlowState<LancerFlowState.DamageRollData>): 
   // Find all the target-specific bonus damage rolls and add them to the base rolls
   // so they can be rolled together.
   for (const hudTarget of state.data.damage_hud_data.targets) {
-    const hudTargetBonusDamage = hudTarget.bonusDamage.map(d => ({
+    const hudTargetBonusDamage = hudTarget.total.bonusDamage.map(d => ({
       ...d,
       target: hudTarget.target,
     }));

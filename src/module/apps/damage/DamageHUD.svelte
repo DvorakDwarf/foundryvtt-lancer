@@ -78,37 +78,37 @@
 
   function reliableType(): DamageType {
     const allowedTypes = [DamageType.Kinetic, DamageType.Energy, DamageType.Explosive];
-    const preferred = weapon.damage.find(d => allowedTypes.includes(d.type));
+    const preferred = weapon.rawDamage.find(d => allowedTypes.includes(d.type));
     if (preferred) {
       return preferred.type;
     }
-    if (weapon.damage.length) {
-      return weapon.damage[0].type;
+    if (weapon.rawDamage.length) {
+      return weapon.rawDamage[0].type;
     }
     return DamageType.Kinetic;
   }
 
   function addBaseDamage() {
-    base.damage = [...base.damage, { type: DamageType.Kinetic, val: "1d6" }];
+    base.rawDamage = [...base.rawDamage, { type: DamageType.Kinetic, val: "1d6" }];
   }
 
   function addBonusDamage() {
-    base.bonusDamage = [...base.bonusDamage, { type: DamageType.Kinetic, val: "1d6" }];
+    base.rawBonusDamage = [...base.rawBonusDamage, { type: DamageType.Kinetic, val: "1d6" }];
   }
 
   function removeBaseDamage(idx: number, isBase = true) {
     if (isBase) {
-      base.damage = base.damage.filter((_, i) => i !== idx);
+      base.rawDamage = base.rawDamage.filter((_, i) => i !== idx);
     } else {
-      weapon.damage = weapon.damage.filter((_, i) => i !== idx);
+      weapon.rawDamage = weapon.rawDamage.filter((_, i) => i !== idx);
     }
   }
 
   function removeBonusDamage(idx: number, isBase = true) {
     if (isBase) {
-      base.bonusDamage = base.bonusDamage.filter((_, i) => i !== idx);
+      base.rawBonusDamage = base.rawBonusDamage.filter((_, i) => i !== idx);
     } else {
-      weapon.bonusDamage = weapon.bonusDamage.filter((_, i) => i !== idx);
+      weapon.rawBonusDamage = weapon.rawBonusDamage.filter((_, i) => i !== idx);
     }
   }
 

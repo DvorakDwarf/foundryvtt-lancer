@@ -40,8 +40,8 @@ function ensureDamageType(d: { type: string; val: string }) {
 export class DamageHudWeapon {
   // These are the damage and bonus damage from the weapon+mod.
   // They are accumulated with whatever other damage is added to the base data
-  damage: DamageData[];
-  bonusDamage: DamageData[];
+  rawDamage: DamageData[];
+  rawBonusDamage: DamageData[];
   reliable: boolean;
   reliableValue: number;
   overkill: boolean;
@@ -54,8 +54,8 @@ export class DamageHudWeapon {
     return {
       // TODO: how do you define an io-ts array schema using a TS type?
       // `type` should be a DamageType
-      damage: t.array(t.type({ type: t.string, val: t.string })),
-      bonusDamage: t.array(t.type({ type: t.string, val: t.string })),
+      rawDamage: t.array(t.type({ type: t.string, val: t.string })),
+      rawBonusDamage: t.array(t.type({ type: t.string, val: t.string })),
       reliable: t.boolean,
       reliableValue: t.number,
       overkill: t.boolean,
@@ -71,10 +71,10 @@ export class DamageHudWeapon {
   }
 
   constructor(obj: t.TypeOf<typeof DamageHudWeapon.schemaCodec>) {
-    const objectDamage = obj.damage.map(ensureDamageType);
-    const objBonusDamage = obj.bonusDamage.map(ensureDamageType);
-    this.damage = objectDamage;
-    this.bonusDamage = objBonusDamage;
+    const objectDamage = obj.rawDamage.map(ensureDamageType);
+    const objBonusDamage = obj.rawBonusDamage.map(ensureDamageType);
+    this.rawDamage = objectDamage;
+    this.rawBonusDamage = objBonusDamage;
     this.reliable = obj.reliable;
     this.reliableValue = obj.reliableValue;
     this.overkill = obj.overkill;
@@ -83,8 +83,8 @@ export class DamageHudWeapon {
 
   get raw() {
     return {
-      damage: this.damage,
-      bonusDamage: this.bonusDamage,
+      rawDamage: this.rawDamage,
+      rawBonusDamage: this.rawBonusDamage,
       reliable: this.reliable,
       reliableValue: this.reliableValue,
       overkill: this.overkill,
@@ -102,8 +102,8 @@ export class DamageHudWeapon {
   get total() {
     //Adds on top of existing damage
     let damages = {
-      damage: this.damage,
-      bonusDamage: this.bonusDamage,
+      damage: this.rawDamage,
+      bonusDamage: this.rawBonusDamage,
     };
     for (const plugin of Object.values(this.plugins)) {
       if (plugin.modifyDamages === undefined) continue;
@@ -142,8 +142,8 @@ export class DamageHudBase {
   ap: boolean;
   paracausal: boolean;
   halfDamage: boolean;
-  damage: DamageData[];
-  bonusDamage: DamageData[];
+  rawDamage: DamageData[];
+  rawBonusDamage: DamageData[];
   plugins: { [k: string]: DamageHudPluginData };
   #weapon?: DamageHudWeapon; // never use this class before calling hydrate
 
@@ -157,8 +157,8 @@ export class DamageHudBase {
       halfDamage: t.boolean,
       // TODO: how do you define an io-ts array schema using a TS type?
       // `type` should be a DamageType
-      damage: t.array(t.type({ type: t.string, val: t.string })),
-      bonusDamage: t.array(t.type({ type: t.string, val: t.string })),
+      rawDamage: t.array(t.type({ type: t.string, val: t.string })),
+      rawBonusDamage: t.array(t.type({ type: t.string, val: t.string })),
       plugins: t.type(this.pluginSchema),
     };
   }
@@ -170,14 +170,14 @@ export class DamageHudBase {
   }
 
   constructor(obj: t.TypeOf<typeof DamageHudBase.schemaCodec>) {
-    const objectDamage = obj.damage.map(ensureDamageType);
-    const objBonusDamage = obj.bonusDamage.map(ensureDamageType);
+    const objectDamage = obj.rawDamage.map(ensureDamageType);
+    const objBonusDamage = obj.rawBonusDamage.map(ensureDamageType);
     this.tech = obj.tech;
     this.ap = obj.ap;
     this.paracausal = obj.paracausal;
     this.halfDamage = obj.halfDamage;
-    this.damage = objectDamage;
-    this.bonusDamage = objBonusDamage;
+    this.rawDamage = objectDamage;
+    this.rawBonusDamage = objBonusDamage;
     this.plugins = obj.plugins;
   }
 
@@ -187,8 +187,8 @@ export class DamageHudBase {
       ap: this.ap,
       paracausal: this.paracausal,
       halfDamage: this.halfDamage,
-      damage: this.damage,
-      bonusDamage: this.bonusDamage,
+      damage: this.rawDamage,
+      rawBonusDamage: this.rawBonusDamage,
       plugins: this.plugins,
     };
   }
@@ -203,8 +203,8 @@ export class DamageHudBase {
   get total() {
     //Adds on top of existing damage
     let damages = {
-      damage: this.damage,
-      bonusDamage: this.bonusDamage,
+      damage: this.rawDamage,
+      bonusDamage: this.rawBonusDamage,
     };
     for (const plugin of Object.values(this.plugins)) {
       if (plugin.modifyDamages === undefined) continue;
@@ -229,7 +229,7 @@ export class DamageHudTarget {
   ap: boolean;
   paracausal: boolean;
   halfDamage: boolean;
-  bonusDamage: DamageData[];
+  rawBonusDamage: DamageData[];
   plugins: { [k: string]: any };
   #weapon?: DamageHudWeapon; // never use this class before calling hydrate
   #base!: DamageHudBase; // never use this class before calling hydrate
@@ -244,7 +244,7 @@ export class DamageHudTarget {
       ap: t.boolean,
       paracausal: t.boolean,
       halfDamage: t.boolean,
-      bonusDamage: t.array(t.type({ type: t.string, val: t.string })),
+      rawBonusDamage: t.array(t.type({ type: t.string, val: t.string })),
       plugins: t.type(this.pluginSchema),
     };
   }
@@ -262,7 +262,7 @@ export class DamageHudTarget {
       ui.notifications!.error("Trying to access tokens from a different scene!");
       throw new Error("Token not found");
     }
-    const objBonusDamage = obj.bonusDamage.map(ensureDamageType);
+    const objBonusDamage = obj.rawBonusDamage.map(ensureDamageType);
 
     this.target = target.object! as LancerToken;
     this.hitResult = obj.hitResult;
@@ -270,7 +270,7 @@ export class DamageHudTarget {
     this.ap = obj.ap;
     this.paracausal = obj.paracausal;
     this.halfDamage = obj.halfDamage;
-    this.bonusDamage = objBonusDamage;
+    this.rawBonusDamage = objBonusDamage;
     this.plugins = obj.plugins;
   }
 
@@ -282,7 +282,7 @@ export class DamageHudTarget {
       ap: this.ap,
       paracausal: this.paracausal,
       halfDamage: this.halfDamage,
-      bonusDamage: this.bonusDamage,
+      rawBonusDamage: this.rawBonusDamage,
       plugins: this.plugins,
     };
   }
@@ -295,7 +295,7 @@ export class DamageHudTarget {
       ap?: boolean;
       paracausal?: boolean;
       halfDamage?: boolean;
-      bonusDamage?: DamageData[];
+      rawBonusDamage?: DamageData[];
     }
   ): DamageHudTarget {
     let ret = {
@@ -305,7 +305,7 @@ export class DamageHudTarget {
       ap: data?.ap || false,
       paracausal: data?.paracausal || false,
       halfDamage: data?.halfDamage || false,
-      bonusDamage: data?.bonusDamage || [],
+      rawBonusDamage: data?.rawBonusDamage || [],
       plugins: {} as { [k: string]: any },
     };
     for (let plugin of DamageHudData.targetedPlugins) {
@@ -332,7 +332,7 @@ export class DamageHudTarget {
     //Plugins should modify it last because stuff like NucCav might be converting it
     let damages = {
       damage: base.damage.concat(weapon.damage),
-      bonusDamage: this.bonusDamage.concat(base.bonusDamage, weapon.bonusDamage),
+      bonusDamage: this.rawBonusDamage.concat(base.bonusDamage, weapon.bonusDamage),
     };
     for (const plugin of Object.values(this.plugins)) {
       if (plugin.modifyDamages === undefined) continue;
@@ -555,8 +555,8 @@ export class DamageHudData {
     }
   ): DamageHudData {
     let weapon = {
-      damage: [] as DamageData[],
-      bonusDamage: [] as DamageData[],
+      rawDamage: [] as DamageData[],
+      rawBonusDamage: [] as DamageData[],
       reliable: false,
       reliableValue: 0,
       overkill: false,
@@ -567,8 +567,8 @@ export class DamageHudData {
       ap: data?.ap ?? false,
       paracausal: data?.paracausal ?? false,
       halfDamage: data?.halfDamage ?? false,
-      damage: data?.starting?.damage ?? [],
-      bonusDamage: data?.starting?.bonusDamage ?? [],
+      rawDamage: data?.starting?.damage ?? [],
+      rawBonusDamage: data?.starting?.bonusDamage ?? [],
       plugins: {} as { [k: string]: any },
     };
 
@@ -589,14 +589,14 @@ export class DamageHudData {
     if (runtimeData instanceof LancerItem) {
       if (runtimeData.is_mech_weapon()) {
         const profile = runtimeData.system.active_profile;
-        weapon.damage = profile.damage;
-        weapon.bonusDamage = profile.bonus_damage;
+        weapon.rawDamage = profile.damage;
+        weapon.rawBonusDamage = profile.bonus_damage;
       } else if (runtimeData.is_npc_feature() && runtimeData.system.type === NpcFeatureType.Weapon) {
         const actor = runtimeData.actor as LancerNPC | null;
         const tier = (actor?.system.tier || 1) - 1;
-        weapon.damage = runtimeData.system.damage[tier];
+        weapon.rawDamage = runtimeData.system.damage[tier];
       } else if (runtimeData.is_pilot_weapon()) {
-        weapon.damage = runtimeData.system.damage;
+        weapon.rawDamage = runtimeData.system.damage;
       }
     }
 
@@ -617,7 +617,7 @@ export class DamageHudData {
           ap: base.ap,
           paracausal: base.paracausal,
           halfDamage: base.halfDamage,
-          bonusDamage: [],
+          rawBonusDamage: [],
           plugins: {} as { [k: string]: any },
         };
         for (let plugin of this.targetedPlugins) {
