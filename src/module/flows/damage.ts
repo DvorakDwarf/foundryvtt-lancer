@@ -393,6 +393,13 @@ export async function rollNormalDamage(state: FlowState<LancerFlowState.DamageRo
       if (result) state.data.damage_results.push(result);
     }
 
+    // for (const target of state.data.damage_hud_data.targets) {
+    //   for (const x of target.total.damage) {
+    //     const result = await _rollDamage(x, false, state.data.overkill, target.plugins);
+    //     if (result) state.data.damage_results.push(result);
+    //   }
+    // }
+
     for (const x of allBonusDamage ?? []) {
       const hudTarget = state.data.damage_hud_data.targets.find(x => x.target === x.target);
       const result = await _rollDamage(x, true, state.data.overkill, hudTarget?.plugins, x.target);

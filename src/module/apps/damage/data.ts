@@ -625,6 +625,7 @@ export class DamageHudData {
           quality: DamageHudData.getHitQuality(t, hitResults),
           ap: base.ap,
           paracausal: base.paracausal,
+          rawDamage: [],
           halfDamage: base.halfDamage,
           rawBonusDamage: [],
           plugins: {} as { [k: string]: any },
