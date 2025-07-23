@@ -62,7 +62,6 @@ export namespace LancerFlowState {
     tt: string | HTMLElement | JQuery<HTMLElement>; // Tooltip
     d_type: DamageType;
     bonus: boolean;
-    individual: boolean;
     target?: LancerToken;
   };
 
@@ -174,8 +173,8 @@ export namespace LancerFlowState {
     reliable: boolean;
     reliable_val?: number;
     tech: boolean;
-    damage: DamageData[][];
-    bonus_damage?: DamageData[][];
+    damage: DamageData[];
+    bonus_damage?: DamageData[];
     hit_results: HitResult[];
     has_normal_hit: boolean;
     has_crit_hit: boolean;

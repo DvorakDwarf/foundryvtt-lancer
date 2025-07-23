@@ -4,7 +4,7 @@ import { DamageHudCheckboxPluginData, DamageHudPluginCodec } from "./plugin";
 import { DamageData } from "../../../models/bits/damage";
 import { DamageType } from "../../../enums";
 import { SampleTalent } from "./sampleTalent";
-import { DamageHudData, DamageHudTarget } from "../data";
+import { DamageHudData, DamageHudTarget, TotalDamage } from "../data";
 import { LancerActor } from "../../../actor/lancer-actor";
 import { LancerItem } from "../../../item/lancer-item";
 
@@ -31,19 +31,24 @@ export default class Juggernaut_2 extends SampleTalent implements DamageHudCheck
     return ret;
   }
 
-  modifyDamages(damages: { damage: DamageData[]; bonusDamage: DamageData[] }): {
-    damage: DamageData[];
-    bonusDamage: DamageData[];
-  } {
+  modifyDamages(
+    damages: {
+      shared: TotalDamage;
+      individual: TotalDamage;
+    },
+    target?: DamageHudTarget
+  ): { shared: TotalDamage; individual: TotalDamage } {
     if (!this.active) return damages;
 
-    let damageSlice = damages.damage.slice();
-    let bonusDamageSlice = damages.bonusDamage.slice();
+    let sharedDamageSlice = damages.shared.damage.slice();
 
-    damageSlice.push({ type: DamageType.Kinetic, val: "1d6" });
+    sharedDamageSlice.push({ type: DamageType.Kinetic, val: "1d6" });
     return {
-      damage: damageSlice,
-      bonusDamage: bonusDamageSlice,
+      shared: {
+        damage: sharedDamageSlice,
+        bonusDamage: damages.shared.bonusDamage,
+      },
+      individual: damages.individual,
     };
   }
 

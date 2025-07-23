@@ -563,7 +563,8 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
       min-height: 1.3em;
       padding: 0.1em;
 
-      .lancer-target-bonus-damage:not(:has(*)) {
+      .lancer-target-bonus-damage:not(:has(*)),
+      .lancer-target-individual-damage:not(:has(*)) {
         display: none;
 
         & ~ .lancer-damage-tags {

@@ -1,3 +1,4 @@
+import { DamageHudTarget } from "../../apps/damage";
 import { DamageType, DamageTypeChecklist } from "../../enums";
 import { restrict_enum } from "../../helpers/commons";
 import { PackedDamageData } from "../../util/unpacking/packed-types";
@@ -8,6 +9,7 @@ const fields: any = foundry.data.fields;
 export interface DamageData {
   type: DamageType;
   val: string;
+  target?: DamageHudTarget;
 }
 
 // "Hydrated" DamageData

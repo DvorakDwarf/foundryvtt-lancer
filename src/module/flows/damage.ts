@@ -224,7 +224,6 @@ async function showDamageHUD(state: FlowState<LancerFlowState.DamageRollData>): 
 async function _rollDamage(
   damage: DamageData,
   bonus: boolean,
-  individual: boolean,
   overkill: boolean,
   plugins?: { [k: string]: any },
   target?: LancerToken
@@ -259,7 +258,6 @@ async function _rollDamage(
     tt: tooltip,
     d_type: damage.type,
     bonus,
-    individual,
     target,
   };
 }
@@ -269,29 +267,17 @@ async function _rollDamage(
  * @param state Flow state to get bonus damage from
  * @returns Array of bonus damage rolls, including target-specific bonus damage
  */
-function _collectBonusDamage(state: FlowState<LancerFlowState.DamageRollData>): {
-  type: DamageType;
-  val: string;
-  target?: LancerToken;
-}[] {
+function _collectBonusDamage(state: FlowState<LancerFlowState.DamageRollData>): DamageData[] {
   if (!state.data) throw new TypeError(`Damage flow state missing!`);
   if (!state.data.damage_hud_data) throw new TypeError(`Damage configuration missing!`);
-  const total: {
-    type: DamageType;
-    val: string;
-    target?: LancerToken;
-  }[] = duplicate(state.data.bonus_damage);
-  // Find all the target-specific bonus damage rolls and add them to the base rolls
-  // so they can be rolled together.
-  for (const hudTarget of state.data.damage_hud_data.targets) {
-    console.log(hudTarget);
-    const hudTargetBonusDamage = hudTarget.total.bonusDamage.map(d => ({
-      ...d,
-      target: hudTarget.target,
-    }));
-    total.push(...hudTargetBonusDamage);
-  }
-  return total;
+
+  const totalDamage = state.data.damage_hud_data.total;
+  const sharedBonusDamage = totalDamage[0].shared.bonusDamage;
+  const individualBonusDamage = totalDamage
+    .map(damages => damages.individual.bonusDamage)
+    .reduce((acc, b) => acc.concat(b), []);
+
+  return sharedBonusDamage.concat(individualBonusDamage);
 }
 
 /**
@@ -326,7 +312,10 @@ export async function rollReliable(state: FlowState<LancerFlowState.DamageRollDa
 
   console.log(state.data.damage_hud_data);
 
-  const sharedDamage = state.data.damage_hud_data.total[0].damage;
+  const allDamage = state.data.damage_hud_data.total;
+  state.data.damage = allDamage[0].shared.damage;
+  state.data.bonus_damage = allDamage[0].shared.bonusDamage;
+
   state.data.reliable_val = state.data.damage_hud_data.weapon?.reliableValue ?? 0;
   const allBonusDamage = _collectBonusDamage(state);
 
@@ -341,15 +330,10 @@ export async function rollReliable(state: FlowState<LancerFlowState.DamageRollDa
   if (state.data.reliable && state.data.reliable_val) {
     state.data.reliable_results = state.data.reliable_results || [];
     // Find the first non-heat non-burn damage type
-    for (const x of sharedDamage ?? []) {
+    for (const x of state.data.damage ?? []) {
       if (!x.val || x.val == "0") continue; // Skip undefined and zero damage
       const damageType = x.type === DamageType.Variable ? DamageType.Kinetic : x.type;
-      const result = await _rollDamage(
-        { type: damageType, val: state.data.reliable_val.toString() },
-        false,
-        false,
-        false
-      );
+      const result = await _rollDamage({ type: damageType, val: state.data.reliable_val.toString() }, false, false);
       if (!result) continue;
 
       state.data.reliable_results.push(result);
@@ -382,10 +366,6 @@ export async function rollNormalDamage(state: FlowState<LancerFlowState.DamageRo
   if (!state.data) throw new TypeError(`Damage flow state missing!`);
   if (!state.data.damage_hud_data) throw new TypeError(`Damage configuration missing!`);
 
-  const allDamage = state.data.damage_hud_data.total;
-  state.data.damage = allDamage.map(targetDamage => targetDamage.damage);
-  state.data.bonus_damage = allDamage.map(targetDamage => targetDamage.bonusDamage);
-
   // Convenience flag for whether this is a multi-target attack.
   // We'll use this later alongside a check for whether a given bonus damage result
   // is single-target; if not, the bonus damage needs to be halved.
@@ -397,24 +377,24 @@ export async function rollNormalDamage(state: FlowState<LancerFlowState.DamageRo
   if (state.data.has_normal_hit || state.data.has_crit_hit) {
     for (const x of state.data.damage ?? []) {
       const hudTarget = state.data.damage_hud_data.targets.find(x => x.target === x.target);
-      const result = await _rollDamage(x, false, false, state.data.overkill, hudTarget?.plugins);
+      const result = await _rollDamage(x, false, state.data.overkill, hudTarget?.plugins);
       if (result) state.data.damage_results.push(result);
     }
 
-    // for (const target of state.data.damage_hud_data.targets) {
-    //   for (const x of target.total.damage) {
-    //     const result = await _rollDamage(x, false, true, state.data.overkill, target.plugins);
-    //     if (result) state.data.damage_results.push(result);
-    //   }
-    // }
+    for (const targetDamage of state.data.damage_hud_data.total) {
+      for (const x of targetDamage.individual.damage) {
+        const target = multiTarget ? x?.target?.target : undefined;
+        const result = await _rollDamage(x, false, state.data.overkill, x?.target?.plugins, target);
+        if (result) state.data.damage_results.push(result);
+      }
+    }
 
     for (const x of allBonusDamage ?? []) {
-      const hudTarget = state.data.damage_hud_data.targets.find(x => x.target === x.target);
-      const result = await _rollDamage(x, true, false, state.data.overkill, hudTarget?.plugins, x.target);
+      const result = await _rollDamage(x, true, state.data.overkill, x?.target?.plugins, x.target?.target);
       if (result) {
         result.bonus = true;
         if (x.target) {
-          result.target = x.target;
+          result.target = x.target.target;
         }
         state.data.damage_results.push(result);
         console.log(result);
@@ -426,7 +406,8 @@ export async function rollNormalDamage(state: FlowState<LancerFlowState.DamageRo
         const targetDamage: { type: DamageType; amount: number }[] = [];
         for (const dr of state.data.damage_results) {
           if (dr.target && dr.target.document.uuid !== hitTarget.target.document.uuid) continue;
-          if (multiTarget && dr.bonus && !dr.target) {
+          // if (multiTarget && dr.bonus && !dr.target) {
+          if (multiTarget && !dr.target) {
             // If this is bonus damage applied to multiple targets, halve it
             targetDamage.push({ type: dr.d_type, amount: Math.ceil((dr.roll.total || 0) / 2) });
           } else {

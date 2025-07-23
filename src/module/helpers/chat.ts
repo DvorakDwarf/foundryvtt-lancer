@@ -120,10 +120,21 @@ export function damageTarget(
     .map(d => `<i class="cci cci-${d} i--s damage--${d}"></i>`)
     .join("");
 
+  const individualDamage: LancerFlowState.DamageResult[] = damageResults.filter(
+    d => !d.bonus && d.target?.document.uuid === target.target.document.uuid
+  );
   const bonusDamage: LancerFlowState.DamageResult[] = damageResults.filter(
     d => d.bonus && d.target?.document.uuid === target.target.document.uuid
   );
 
+  const individualDamageRolls: string[] = individualDamage.map(
+    bd =>
+      `<div class="flexrow">${lancerDiceRoll(
+        bd.roll,
+        bd.tt as string,
+        `cci cci-${bd.d_type.toLowerCase()} damage--${bd.d_type.toLowerCase()} i--m`
+      )}</div>`
+  );
   const bonusRolls: string[] = bonusDamage.map(
     bd =>
       `<div class="flexrow"><span class="lancer-damage-tag" style="flex-grow: 0" data-tooltip="This row is bonus damage">BONUS</span>${lancerDiceRoll(
@@ -177,6 +188,10 @@ export function damageTarget(
           class="lancer-button lancer-damage-apply"
           title="Apply damage"
         >${damageIcons}</button>
+      </div>
+      <div class="lancer-damage-rolls-tags flexrow">
+        <div class="lancer-target-individual-damage flexcol">${individualDamageRolls.join("")}</div>
+        ${damageTagsDisplay}
       </div>
       <div class="lancer-damage-rolls-tags flexrow">
         <div class="lancer-target-bonus-damage flexcol">${bonusRolls.join("")}</div>

@@ -3,7 +3,7 @@ import { LancerItem } from "../../item/lancer-item";
 import { LancerActor } from "../../actor/lancer-actor";
 
 import type { DamageHudData } from "./index";
-import { DamageHudTarget } from "../data";
+import { DamageHudTarget, TotalDamage } from "../data";
 
 // Implementing a plugin means implementing
 // * a data object that can compute its view behaviour,
@@ -36,12 +36,12 @@ declare interface RollModifier {
   modifyRoll?(roll: string): string;
   //This has to be non-mutating to avoid recursion
   modifyDamages?(
-    damages: { damage: DamageData[]; bonusDamage: DamageData[] },
+    damages: {
+      shared: TotalDamage;
+      individual: TotalDamage;
+    },
     target?: DamageHudTarget
-  ): {
-    damage: DamageData[];
-    bonusDamage: DamageData[];
-  };
+  ): { shared: TotalDamage; individual: TotalDamage };
   get rollPrecedence(): number; // higher numbers happen earlier
 }
 

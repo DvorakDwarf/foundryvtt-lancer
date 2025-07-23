@@ -7,6 +7,7 @@ import { DamageData } from "../../../models/bits/damage";
 import { DamageType } from "../../../enums";
 import { SampleTalent } from "./sampleTalent";
 import { BoundedNum } from "../../../source-template";
+import { TotalDamage } from "../data";
 
 function isDangerZone(heat?: BoundedNum): boolean {
   if (heat == undefined || heat.max === undefined) return false;
@@ -31,12 +32,12 @@ export class Nuke_1 extends SampleTalent implements DamageHudCheckboxPluginData 
   }
 
   modifyDamages(
-    damages: { damage: DamageData[]; bonusDamage: DamageData[] },
+    damages: {
+      shared: TotalDamage;
+      individual: TotalDamage;
+    },
     target?: DamageHudTarget
-  ): {
-    damage: DamageData[];
-    bonusDamage: DamageData[];
-  } {
+  ): { shared: TotalDamage; individual: TotalDamage } {
     if (!this.active) return damages;
 
     //Only apply heat to first target
@@ -47,13 +48,12 @@ export class Nuke_1 extends SampleTalent implements DamageHudCheckboxPluginData 
       if (firstTargetId !== target?.target.id) return damages;
     }
 
-    let damageSlice = damages.damage.slice();
-    let bonusDamageSlice = damages.bonusDamage.slice();
-
-    damageSlice.push({ type: DamageType.Heat, val: "2" });
     return {
-      damage: damageSlice,
-      bonusDamage: bonusDamageSlice,
+      shared: damages.shared,
+      individual: {
+        damage: [{ type: DamageType.Heat, val: "2", target }],
+        bonusDamage: [],
+      },
     };
   }
 
@@ -100,23 +100,22 @@ export class Nuke_2 extends SampleTalent implements DamageHudCheckboxPluginData 
   }
 
   modifyDamages(
-    damages: { damage: DamageData[]; bonusDamage: DamageData[] },
+    damages: {
+      shared: TotalDamage;
+      individual: TotalDamage;
+    },
     target?: DamageHudTarget
-  ): {
-    damage: DamageData[];
-    bonusDamage: DamageData[];
-  } {
+  ): { shared: TotalDamage; individual: TotalDamage } {
     if (!this.active) return damages;
-
     console.log("NucCav2");
 
-    //NucCav 2 only applies bonus damage to first target
-    if (this.data?.targets !== undefined && this.data?.targets.length > 0) {
-      const firstTargetId = this.data.targets[0].target.id;
-      console.log(firstTargetId);
-      console.log(target?.target.id);
-      if (firstTargetId !== target?.target.id) return damages;
-    }
+    // //NucCav 2 only applies bonus damage to first target
+    // if (this.data?.targets !== undefined && this.data?.targets.length > 0) {
+    //   const firstTargetId = this.data.targets[0].target.id;
+    //   console.log(firstTargetId);
+    //   console.log(target?.target.id);
+    //   if (firstTargetId !== target?.target.id) return damages;
+    // }
 
     const convertDamage = (damage: DamageData) => {
       if (damage.type === DamageType.Explosive || damage.type === DamageType.Kinetic) {
@@ -125,15 +124,20 @@ export class Nuke_2 extends SampleTalent implements DamageHudCheckboxPluginData 
       return damage;
     };
 
-    let damageSlice = damages.damage.slice().map(convertDamage);
-    let bonusDamageSlice = damages.bonusDamage.slice().map(convertDamage);
+    let sharedDamageSlice = damages.shared.damage.slice().map(convertDamage);
+    let sharedBonusSlice = damages.shared.bonusDamage.slice().map(convertDamage);
 
-    bonusDamageSlice.push({ type: DamageType.Energy, val: "1d6" });
-    console.log(bonusDamageSlice);
-    return {
-      damage: damageSlice,
-      bonusDamage: bonusDamageSlice,
+    const result = {
+      shared: {
+        damage: sharedDamageSlice,
+        bonusDamage: sharedBonusSlice,
+      },
+      individual: {
+        damage: [],
+        bonusDamage: [{ type: DamageType.Energy, val: "1d6", target }],
+      },
     };
+    return result;
   }
 
   static perUnknownTarget(): Nuke_2 {
@@ -164,6 +168,11 @@ export class Nuke_2 extends SampleTalent implements DamageHudCheckboxPluginData 
   isVisible(data: DamageHudData, target?: DamageHudTarget): boolean {
     //This talent does not apply to tech attacks
     if (data.base.tech) return false;
+    // Converting damage and making it work with reliable
+    // and determining individual vs shared damage on a multi-target roll
+    // is a lot of work so after much time,
+    // Nuke_2 just won't show up for multiple targets
+    if (data.targets.length > 1) return false;
 
     return true;
   }

@@ -15,6 +15,11 @@ import Brutal_1 from "./plugins/brutal";
 import Brawler_2 from "./plugins/brawler2";
 import Juggernaut_2 from "./plugins/juggernaut2";
 
+export type TotalDamage = {
+  damage: DamageData[];
+  bonusDamage: DamageData[];
+};
+
 export enum HitQuality {
   Miss = 0,
   Hit = 1,
@@ -200,7 +205,7 @@ export class DamageHudBase {
     }
   }
 
-  get total() {
+  get total(): TotalDamage {
     //Adds on top of existing damage
     let damages = {
       damage: this.rawDamage,
@@ -340,7 +345,7 @@ export class DamageHudTarget {
   //   }
   // }
 
-  get total() {
+  get total(): { shared: TotalDamage; individual: TotalDamage } {
     const base = this.#base.total;
     const weapon = this.#weapon?.total ?? {
       damage: [],
@@ -349,18 +354,21 @@ export class DamageHudTarget {
 
     //Plugins should modify it last because stuff like NucCav might be converting it
     let damages = {
-      damage: this.rawDamage.concat(base.damage, weapon.damage),
-      bonusDamage: this.rawBonusDamage.concat(base.bonusDamage, weapon.bonusDamage),
+      shared: {
+        damage: this.rawDamage.concat(base.damage, weapon.damage),
+        bonusDamage: this.rawBonusDamage.concat(base.bonusDamage, weapon.bonusDamage),
+      },
+      individual: {
+        damage: [],
+        bonusDamage: [],
+      },
     };
     for (const plugin of Object.values(this.plugins)) {
       if (plugin.modifyDamages === undefined) continue;
       damages = plugin.modifyDamages(damages, this);
     }
 
-    return {
-      damage: damages.damage,
-      bonusDamage: damages.bonusDamage,
-    };
+    return damages;
   }
 }
 
@@ -486,7 +494,7 @@ export class DamageHudData {
     return this;
   }
 
-  get total(): { damage: DamageData[]; bonusDamage: DamageData[] }[] {
+  get total(): { shared: TotalDamage; individual: TotalDamage }[] {
     if (this.targets.length === 0) {
       const base = this.base.total;
       const weapon = this.weapon?.total ?? {
@@ -495,8 +503,14 @@ export class DamageHudData {
       };
       return [
         {
-          damage: base.damage.concat(weapon.damage),
-          bonusDamage: base.bonusDamage.concat(weapon.bonusDamage),
+          shared: {
+            damage: base.damage.concat(weapon.damage),
+            bonusDamage: base.bonusDamage.concat(weapon.bonusDamage),
+          },
+          individual: {
+            damage: [],
+            bonusDamage: [],
+          },
         },
       ];
     }
