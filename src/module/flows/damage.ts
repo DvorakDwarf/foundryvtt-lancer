@@ -282,6 +282,7 @@ function _collectBonusDamage(state: FlowState<LancerFlowState.DamageRollData>): 
   // Find all the target-specific bonus damage rolls and add them to the base rolls
   // so they can be rolled together.
   for (const hudTarget of state.data.damage_hud_data.targets) {
+    console.log(hudTarget);
     const hudTargetBonusDamage = hudTarget.total.bonusDamage.map(d => ({
       ...d,
       target: hudTarget.target,
@@ -320,6 +321,8 @@ function _halveDamage(damage: LancerFlowState.RolledDamage[]): LancerFlowState.R
 export async function rollReliable(state: FlowState<LancerFlowState.DamageRollData>): Promise<boolean> {
   if (!state.data) throw new TypeError(`Damage flow state missing!`);
   if (!state.data.damage_hud_data) throw new TypeError(`Damage configuration missing!`);
+
+  console.log(state.data.damage_hud_data);
 
   const baseDamage = state.data.damage_hud_data.base.total;
   const weaponDamage = state.data.damage_hud_data?.weapon?.total ?? { damage: [], bonusDamage: [] };

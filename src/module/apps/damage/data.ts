@@ -517,13 +517,14 @@ export class DamageHudData {
     if (plugin.perRoll) {
       DamageHudWeapon.pluginSchema[plugin.slug] = plugin.codec;
     }
-    if (plugin.perUnknownTarget) {
-      DamageHudBase.pluginSchema[plugin.slug] = plugin.codec;
-    }
+    //Enforce the "every roll has perRoll + exactly one of perTarget and perUnknownTarget"
     if (plugin.perTarget) {
       DamageHudTarget.pluginSchema[plugin.slug] = plugin.codec;
       this.targetedPlugins.push(plugin);
+    } else if (plugin.perUnknownTarget) {
+      DamageHudBase.pluginSchema[plugin.slug] = plugin.codec;
     }
+
     this.plugins.push(plugin);
   }
 
