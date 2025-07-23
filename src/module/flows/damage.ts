@@ -224,6 +224,7 @@ async function showDamageHUD(state: FlowState<LancerFlowState.DamageRollData>): 
 async function _rollDamage(
   damage: DamageData,
   bonus: boolean,
+  individual: boolean,
   overkill: boolean,
   plugins?: { [k: string]: any },
   target?: LancerToken
@@ -258,6 +259,7 @@ async function _rollDamage(
     tt: tooltip,
     d_type: damage.type,
     bonus,
+    individual,
     target,
   };
 }
@@ -345,7 +347,12 @@ export async function rollReliable(state: FlowState<LancerFlowState.DamageRollDa
     for (const x of state.data.damage ?? []) {
       if (!x.val || x.val == "0") continue; // Skip undefined and zero damage
       const damageType = x.type === DamageType.Variable ? DamageType.Kinetic : x.type;
-      const result = await _rollDamage({ type: damageType, val: state.data.reliable_val.toString() }, false, false);
+      const result = await _rollDamage(
+        { type: damageType, val: state.data.reliable_val.toString() },
+        false,
+        false,
+        false
+      );
       if (!result) continue;
 
       state.data.reliable_results.push(result);
@@ -389,26 +396,27 @@ export async function rollNormalDamage(state: FlowState<LancerFlowState.DamageRo
   if (state.data.has_normal_hit || state.data.has_crit_hit) {
     for (const x of state.data.damage ?? []) {
       const hudTarget = state.data.damage_hud_data.targets.find(x => x.target === x.target);
-      const result = await _rollDamage(x, false, state.data.overkill, hudTarget?.plugins);
+      const result = await _rollDamage(x, false, false, state.data.overkill, hudTarget?.plugins);
       if (result) state.data.damage_results.push(result);
     }
 
     // for (const target of state.data.damage_hud_data.targets) {
     //   for (const x of target.total.damage) {
-    //     const result = await _rollDamage(x, false, state.data.overkill, target.plugins);
+    //     const result = await _rollDamage(x, false, true, state.data.overkill, target.plugins);
     //     if (result) state.data.damage_results.push(result);
     //   }
     // }
 
     for (const x of allBonusDamage ?? []) {
       const hudTarget = state.data.damage_hud_data.targets.find(x => x.target === x.target);
-      const result = await _rollDamage(x, true, state.data.overkill, hudTarget?.plugins, x.target);
+      const result = await _rollDamage(x, true, false, state.data.overkill, hudTarget?.plugins, x.target);
       if (result) {
         result.bonus = true;
         if (x.target) {
           result.target = x.target;
         }
         state.data.damage_results.push(result);
+        console.log(result);
       }
     }
 

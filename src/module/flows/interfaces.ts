@@ -62,6 +62,7 @@ export namespace LancerFlowState {
     tt: string | HTMLElement | JQuery<HTMLElement>; // Tooltip
     d_type: DamageType;
     bonus: boolean;
+    individual: boolean;
     target?: LancerToken;
   };
 

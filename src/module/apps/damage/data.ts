@@ -329,6 +329,17 @@ export class DamageHudTarget {
     }
   }
 
+  // get damage(): DamageData[] {
+  //   let damages = {
+  //     damage: this.rawDamage.concat(base.damage, weapon.damage),
+  //     bonusDamage: this.rawBonusDamage.concat(base.bonusDamage, weapon.bonusDamage),
+  //   };
+  //   for (const plugin of Object.values(this.plugins)) {
+  //     if (plugin.modifyDamages === undefined) continue;
+  //     damages = plugin.modifyDamages(damages, this);
+  //   }
+  // }
+
   get total() {
     const base = this.#base.total;
     const weapon = this.#weapon?.total ?? {

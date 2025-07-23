@@ -109,6 +109,8 @@ export function damageTarget(
   else if (target.hit) damageResults = context.damage_results;
   else damageResults = context.reliable_results || [];
 
+  console.log(damageResults);
+
   const damageTypes = new Set(
     damageResults
       .filter(d => !d.target || d.target?.document.uuid === target.target.document.uuid)
