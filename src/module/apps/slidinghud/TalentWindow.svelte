@@ -17,9 +17,8 @@
   function determineTalents(targets: AccDiffHudTarget[] | DamageHudTarget[] | undefined) {
     if (targets === undefined) return [];
 
-    //Assume talents on one target apply to all
-    //Alternatively, it could just not display the window at all
-    //Maybe eventually show talent window per target
+    //Maybe eventually have a small checklist under targets for target-specific talents
+
     const basePlugins = Object.values(base.plugins);
     const weaponPlugins = Object.values(weapon.plugins);
 

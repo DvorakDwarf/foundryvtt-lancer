@@ -449,11 +449,11 @@ export class AccDiffHudData {
       AccDiffHudWeapon.pluginSchema[plugin.slug] = plugin.codec;
     }
 
-    //Enforce the "every roll has perRoll + exactly one of perTarget and perUnknownTarget"
     if (plugin.perTarget) {
       AccDiffHudTarget.pluginSchema[plugin.slug] = plugin.codec;
       this.targetedPlugins.push(plugin);
-    } else if (plugin.perUnknownTarget) {
+    }
+    if (plugin.perUnknownTarget) {
       AccDiffHudBase.pluginSchema[plugin.slug] = plugin.codec;
     }
 

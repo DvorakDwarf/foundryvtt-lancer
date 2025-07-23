@@ -230,6 +230,7 @@ export class DamageHudTarget {
   paracausal: boolean;
   halfDamage: boolean;
   rawBonusDamage: DamageData[];
+  rawDamage: DamageData[];
   plugins: { [k: string]: any };
   #weapon?: DamageHudWeapon; // never use this class before calling hydrate
   #base!: DamageHudBase; // never use this class before calling hydrate
@@ -244,6 +245,7 @@ export class DamageHudTarget {
       ap: t.boolean,
       paracausal: t.boolean,
       halfDamage: t.boolean,
+      rawDamage: t.array(t.type({ type: t.string, val: t.string })),
       rawBonusDamage: t.array(t.type({ type: t.string, val: t.string })),
       plugins: t.type(this.pluginSchema),
     };
@@ -262,6 +264,7 @@ export class DamageHudTarget {
       ui.notifications!.error("Trying to access tokens from a different scene!");
       throw new Error("Token not found");
     }
+    const objDamage = obj.rawDamage.map(ensureDamageType);
     const objBonusDamage = obj.rawBonusDamage.map(ensureDamageType);
 
     this.target = target.object! as LancerToken;
@@ -270,6 +273,7 @@ export class DamageHudTarget {
     this.ap = obj.ap;
     this.paracausal = obj.paracausal;
     this.halfDamage = obj.halfDamage;
+    this.rawDamage = objDamage;
     this.rawBonusDamage = objBonusDamage;
     this.plugins = obj.plugins;
   }
@@ -282,6 +286,7 @@ export class DamageHudTarget {
       ap: this.ap,
       paracausal: this.paracausal,
       halfDamage: this.halfDamage,
+      rawDamage: this.rawDamage,
       rawBonusDamage: this.rawBonusDamage,
       plugins: this.plugins,
     };
@@ -295,6 +300,7 @@ export class DamageHudTarget {
       ap?: boolean;
       paracausal?: boolean;
       halfDamage?: boolean;
+      rawDamage?: DamageData[];
       rawBonusDamage?: DamageData[];
     }
   ): DamageHudTarget {
@@ -305,6 +311,7 @@ export class DamageHudTarget {
       ap: data?.ap || false,
       paracausal: data?.paracausal || false,
       halfDamage: data?.halfDamage || false,
+      rawDamage: data?.rawDamage || [],
       rawBonusDamage: data?.rawBonusDamage || [],
       plugins: {} as { [k: string]: any },
     };
@@ -331,7 +338,7 @@ export class DamageHudTarget {
 
     //Plugins should modify it last because stuff like NucCav might be converting it
     let damages = {
-      damage: base.damage.concat(weapon.damage),
+      damage: this.rawDamage.concat(base.damage, weapon.damage),
       bonusDamage: this.rawBonusDamage.concat(base.bonusDamage, weapon.bonusDamage),
     };
     for (const plugin of Object.values(this.plugins)) {
@@ -517,11 +524,12 @@ export class DamageHudData {
     if (plugin.perRoll) {
       DamageHudWeapon.pluginSchema[plugin.slug] = plugin.codec;
     }
-    //Enforce the "every roll has perRoll + exactly one of perTarget and perUnknownTarget"
+
     if (plugin.perTarget) {
       DamageHudTarget.pluginSchema[plugin.slug] = plugin.codec;
       this.targetedPlugins.push(plugin);
-    } else if (plugin.perUnknownTarget) {
+    }
+    if (plugin.perUnknownTarget) {
       DamageHudBase.pluginSchema[plugin.slug] = plugin.codec;
     }
 
