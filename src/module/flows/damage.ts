@@ -326,10 +326,7 @@ export async function rollReliable(state: FlowState<LancerFlowState.DamageRollDa
 
   console.log(state.data.damage_hud_data);
 
-  const baseDamage = state.data.damage_hud_data.base.total;
-  const weaponDamage = state.data.damage_hud_data?.weapon?.total ?? { damage: [], bonusDamage: [] };
-  state.data.damage = baseDamage.damage.concat(weaponDamage.damage);
-  state.data.bonus_damage = baseDamage.bonusDamage.concat(weaponDamage.bonusDamage);
+  const sharedDamage = state.data.damage_hud_data.total[0].damage;
   state.data.reliable_val = state.data.damage_hud_data.weapon?.reliableValue ?? 0;
   const allBonusDamage = _collectBonusDamage(state);
 
@@ -344,7 +341,7 @@ export async function rollReliable(state: FlowState<LancerFlowState.DamageRollDa
   if (state.data.reliable && state.data.reliable_val) {
     state.data.reliable_results = state.data.reliable_results || [];
     // Find the first non-heat non-burn damage type
-    for (const x of state.data.damage ?? []) {
+    for (const x of sharedDamage ?? []) {
       if (!x.val || x.val == "0") continue; // Skip undefined and zero damage
       const damageType = x.type === DamageType.Variable ? DamageType.Kinetic : x.type;
       const result = await _rollDamage(
@@ -384,6 +381,10 @@ export async function rollReliable(state: FlowState<LancerFlowState.DamageRollDa
 export async function rollNormalDamage(state: FlowState<LancerFlowState.DamageRollData>): Promise<boolean> {
   if (!state.data) throw new TypeError(`Damage flow state missing!`);
   if (!state.data.damage_hud_data) throw new TypeError(`Damage configuration missing!`);
+
+  const allDamage = state.data.damage_hud_data.total;
+  state.data.damage = allDamage.map(targetDamage => targetDamage.damage);
+  state.data.bonus_damage = allDamage.map(targetDamage => targetDamage.bonusDamage);
 
   // Convenience flag for whether this is a multi-target attack.
   // We'll use this later alongside a check for whether a given bonus damage result

@@ -174,8 +174,8 @@ export namespace LancerFlowState {
     reliable: boolean;
     reliable_val?: number;
     tech: boolean;
-    damage: DamageData[];
-    bonus_damage?: DamageData[];
+    damage: DamageData[][];
+    bonus_damage?: DamageData[][];
     hit_results: HitResult[];
     has_normal_hit: boolean;
     has_crit_hit: boolean;
