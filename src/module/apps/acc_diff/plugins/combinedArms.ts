@@ -127,7 +127,11 @@ export class CombinedArms_3 extends AbstractTalent implements AccDiffHudCheckbox
 
     const lastWeaponType = findLastHitWeaponType(data.lancerActor.id);
     if (!lastWeaponType) return;
-    if (lastWeaponType === currentType) return;
+
+    const wasLastMelee = lastWeaponType === WeaponType.Melee;
+    const isCurrentMelee = currentType === WeaponType.Melee;
+
+    if (wasLastMelee === isCurrentMelee) return;
 
     this.active = true;
   }
