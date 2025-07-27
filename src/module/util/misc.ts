@@ -4,6 +4,7 @@ import { LancerCombatHistory } from "../combat/lancer-combat-history";
 import { LANCER } from "../config";
 import { NpcFeatureType } from "../enums";
 import { LancerItem } from "../item/lancer-item";
+import { slugify } from "./lid";
 
 /**
  * Watches for exact changes in its payload, detected by monitoring changes int its payload is stringified to JSON

@@ -62,13 +62,13 @@ export class CombinedArms_2 extends AbstractTalent implements AccDiffHudCheckbox
   }
 }
 
-function findLastHitWeaponType(actorUUID: string | null): WeaponType | undefined {
+function findLastHitWeaponType(actorId: string | null): WeaponType | undefined {
   const history = getHistory();
   if (!history) return undefined;
 
   //Getting all actions is kind of a waste
   const actions = history
-    .getAllActions(actorUUID)
+    .getAllActions(actorId)
     .filter(action => {
       for (const hit_result of action.hit_results) {
         if (hit_result.hit) return true;
@@ -123,9 +123,9 @@ export class CombinedArms_3 extends AbstractTalent implements AccDiffHudCheckbox
     const currentType = data.weapon.weaponType;
     if (currentType === null) return;
 
-    if (!data.lancerActor?.uuid) return;
+    if (!data.lancerActor?.id) return;
 
-    const lastWeaponType = findLastHitWeaponType(data.lancerActor.uuid);
+    const lastWeaponType = findLastHitWeaponType(data.lancerActor.id);
     if (!lastWeaponType) return;
     if (lastWeaponType === currentType) return;
 

@@ -8,10 +8,10 @@ import { HistoryHitResult } from "../../../combat/lancer-combat-history";
 //Automated
 
 //Is this laggy?
-function getMisses(actorUUID?: string | null): HistoryHitResult[] {
-  if (!actorUUID) return [];
+function getMisses(actorId?: string | null): HistoryHitResult[] {
+  if (!actorId) return [];
 
-  const actions = getHistory()?.getAllActions(actorUUID) ?? [];
+  const actions = getHistory()?.getAllActions(actorId) ?? [];
 
   let misses = [];
   for (const action of actions.reverse()) {
@@ -62,12 +62,12 @@ export default class Brutal_3 extends AbstractTalent implements AccDiffHudCheckb
     if (data.targets.length > 0 && !target) return;
 
     //We enable the checkbox if there has been at least one miss
-    this.active = getMisses(data.lancerActor?.uuid).length > 0;
+    this.active = getMisses(data.lancerActor?.id).length > 0;
   }
 
   //RollModifier Requirements
   //Modify accuracy
   get accBonus(): number {
-    return this.active ? getMisses(this.data?.lancerActor?.uuid).length : 0;
+    return this.active ? getMisses(this.data?.lancerActor?.id).length : 0;
   }
 }
