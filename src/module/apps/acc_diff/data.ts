@@ -90,10 +90,10 @@ export class AccDiffHudWeapon {
     const actor = this.#data?.lancerActor;
     if (!actor) return null;
 
-    if (actor.is_mech()) {
+    if (actor.is_mech() && this.#data?.lancerItem?.is_mech_weapon()) {
       // @ts-expect-error
       return this.#data?.lancerItem?.system?.active_profile.type;
-    } else if (actor.is_npc()) {
+    } else if (actor.is_npc() && this.#data?.lancerItem?.is_npc_feature() && this.#data?.lancerItem?.system.type === NpcFeatureType.Weapon) {
       // @ts-expect-error
       return this.#data?.lancerItem?.system?.weapon_type.split(" ")[1] ?? null;
     }
