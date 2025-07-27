@@ -330,7 +330,7 @@ export class AccDiffHudTarget {
   }
 }
 
-let attackWindowSchema = t.union([
+const attackWindowSchema = t.union([
   t.literal("weapon"),
   t.literal("tech"),
   t.literal("basic"),
@@ -340,6 +340,7 @@ let attackWindowSchema = t.union([
   t.literal("sys"),
   t.literal("eng"),
 ]);
+
 // If you want total, use AccDiffHudData.total() or target.total()
 export type AccDiffHudDataSerialized = t.OutputOf<typeof AccDiffHudData.schemaCodec>;
 export class AccDiffHudData {
