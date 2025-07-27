@@ -9,7 +9,7 @@
   export let weapon: AccDiffHudWeapon;
   export let kind: string;
 
-  $: if (kind !== "hase" && kind !== "attack" && kind !== "damage")
+  $: if (!["hase", "attack", "damage", "structure", "stress"].includes(kind))
     console.warn(`${LANCER.log_prefix} Talent window called for unknown kind of HUD: ${kind}`);
 
   $: visibleTalents = determineTalents(targets);
