@@ -88,7 +88,7 @@ export class AccDiffHudWeapon {
 
   get weaponType(): WeaponType | null {
     const actor = this.#data?.lancerActor;
-    if (actor === undefined) return null;
+    if (!actor) return null;
 
     if (actor.is_mech()) {
       // @ts-expect-error
