@@ -6,7 +6,7 @@ import { enclass, encode, decode } from "../serde";
 import { LancerItem } from "../../item/lancer-item";
 import { LancerToken } from "../../token";
 import { Tag } from "../../models/bits/tag";
-import { AccDiffWindowType, FittingSize, WeaponType } from "../../enums";
+import { AccDiffWindowType, NpcFeatureType, WeaponSize, WeaponType } from "../../enums";
 
 import Invisibility from "./plugins/invisibility";
 import Spotter from "./plugins/spotter";
@@ -88,14 +88,14 @@ export class AccDiffHudWeapon {
 
   get weaponType(): WeaponType | null {
     const actor = this.#data?.lancerActor;
+    const item = this.#data?.lancerItem;
     if (!actor) return null;
+    if (!item) return null;
 
-    if (actor.is_mech() && this.#data?.lancerItem?.is_mech_weapon()) {
-      // @ts-expect-error
-      return this.#data?.lancerItem?.system?.active_profile.type;
-    } else if (actor.is_npc() && this.#data?.lancerItem?.is_npc_feature() && this.#data?.lancerItem?.system.type === NpcFeatureType.Weapon) {
-      // @ts-expect-error
-      return this.#data?.lancerItem?.system?.weapon_type.split(" ")[1] ?? null;
+    if (actor.is_mech() && item.is_mech_weapon()) {
+      return item.system.active_profile.type;
+    } else if (actor.is_npc() && item.is_npc_feature() && item.system.type === NpcFeatureType.Weapon) {
+      return (item.system.weapon_type.split(" ")[1] as WeaponType) ?? null;
     }
     //If this were a pilot, we return null
 
@@ -103,16 +103,16 @@ export class AccDiffHudWeapon {
   }
 
   //Is there an integrated melee weapon?
-  get mount(): FittingSize | null {
+  get mount(): WeaponSize | null {
     const actor = this.#data?.lancerActor;
+    const item = this.#data?.lancerItem;
     if (!actor) return null;
+    if (!item) return null;
 
-    if (actor.is_mech()) {
-      // @ts-expect-error
-      return this.#data?.lancerItem?.system?.size ?? null;
-    } else if (actor.is_npc()) {
-      // @ts-expect-error
-      return this.#data?.lancerItem?.system?.weapon_type.split(" ")[0] ?? null;
+    if (actor.is_mech() && item.is_mech_weapon()) {
+      return item.system.size ?? null;
+    } else if (actor.is_npc() && item.is_npc_feature() && item.system.type === NpcFeatureType.Weapon) {
+      return (item.system.weapon_type.split(" ")[0] as WeaponSize) ?? null;
     }
     //If this were a pilot, we return null
 

@@ -1,7 +1,7 @@
 import { AccDiffHudData, AccDiffHudTarget } from "../data";
 import { AccDiffHudCheckboxPluginData, AccDiffHudPluginCodec } from "./plugin";
 import { enclass } from "../../serde";
-import { AccDiffWindowType, FittingSize, WeaponType } from "../../../enums";
+import { AccDiffWindowType, WeaponSize, WeaponType } from "../../../enums";
 import { slugify } from "../../../util/lid";
 import { getHistory } from "../../../util/misc";
 import { AbstractTalent } from "./abstractTalents";
@@ -47,13 +47,13 @@ export default class Gunslinger_1 extends AbstractTalent implements AccDiffHudCh
 
     // Talent only applies to Ranged
     if (data.weapon.weaponType === WeaponType.Melee) return;
-    if (data.weapon.mount !== FittingSize.Auxiliary) return;
+    if (data.weapon.mount !== WeaponSize.Aux) return;
 
     const actionsThisTurn = getHistory()?.getCurrentTurn(data.lancerActor?.id)?.actions;
     //I don't think you get a choice of whether to use the talent now or later
     const talentUsed = actionsThisTurn?.find(action => {
       if (action.weapon.weaponType === WeaponType.Melee) return false;
-      if (action.weapon.mount !== FittingSize.Auxiliary) return false;
+      if (action.weapon.mount !== WeaponSize.Aux) return false;
 
       return true;
     });

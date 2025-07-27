@@ -1,7 +1,7 @@
 import { LancerActor } from "../actor/lancer-actor";
 import { Cover } from "../apps/acc_diff";
 import { LANCER } from "../config";
-import { FittingSize, WeaponType } from "../enums";
+import { WeaponSize, WeaponType } from "../enums";
 import { LancerFlowState } from "../flows/interfaces";
 import { BoundedNum } from "../source-template";
 import { LancerCombatant } from "./lancer-combat";
@@ -48,7 +48,7 @@ type HistoryTarget = {
 };
 
 type HistoryWeapon = {
-  mount: FittingSize | null;
+  mount: WeaponSize | null;
   weaponType: WeaponType | null;
   accurate: boolean;
   inaccurate: boolean;

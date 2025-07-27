@@ -1,7 +1,7 @@
 import { AccDiffHudData, AccDiffHudTarget } from "../data";
 import { AccDiffHudNoUIPluginData, AccDiffHudPluginCodec } from "./plugin";
 import { enclass } from "../../serde";
-import { AccDiffWindowType, FittingSize, WeaponType } from "../../../enums";
+import { AccDiffWindowType, WeaponSize, WeaponType } from "../../../enums";
 import { slugify } from "../../../util/lid";
 import { AbstractCardReminder } from "./abstractTalents";
 import { getHistory } from "../../../util/misc";
@@ -51,12 +51,12 @@ export default class Hunter_1 extends AbstractCardReminder implements AccDiffHud
     // Talent only applies to first Melee Auxillary this turn
     // We won't remind after the first one this turn
     if (data.weapon.weaponType !== WeaponType.Melee) return false;
-    if (data.weapon.mount !== FittingSize.Auxiliary) return false;
+    if (data.weapon.mount !== WeaponSize.Aux) return false;
 
     const actionsThisTurn = getHistory()?.getCurrentTurn(data.lancerActor?.id)?.actions;
     const talentUsed = actionsThisTurn?.find(action => {
       if (action.weapon.weaponType !== WeaponType.Melee) return false;
-      if (action.weapon.mount !== FittingSize.Auxiliary) return false;
+      if (action.weapon.mount !== WeaponSize.Aux) return false;
 
       return true;
     });

@@ -1,7 +1,7 @@
 import { AccDiffHudData, AccDiffHudTarget } from "../data";
 import { AccDiffHudCheckboxPluginData, AccDiffHudPluginCodec } from "./plugin";
 import { enclass } from "../../serde";
-import { AccDiffWindowType, FittingSize, WeaponType } from "../../../enums";
+import { AccDiffWindowType, WeaponSize, WeaponType } from "../../../enums";
 import { slugify } from "../../../util/lid";
 import { getHistory } from "../../../util/misc";
 import { AbstractTalent } from "./abstractTalents";
@@ -41,13 +41,13 @@ export default class Duelist_1 extends AbstractTalent implements AccDiffHudCheck
     if (data.windowType === AccDiffWindowType.Basic) return;
 
     if (data.weapon.weaponType !== WeaponType.Melee) return;
-    if (data.weapon.mount !== FittingSize.Main) return;
+    if (data.weapon.mount !== WeaponSize.Main) return;
 
     const actionsThisTurn = getHistory()?.getCurrentTurn(data.lancerActor?.id)?.actions;
     //I don't think you get a choice of whether to use the talent now or later
     const partisanUsed = actionsThisTurn?.find(action => {
       if (action.weapon.weaponType !== WeaponType.Melee) return false;
-      if (action.weapon.mount !== FittingSize.Main) return false;
+      if (action.weapon.mount !== WeaponSize.Main) return false;
 
       return true;
     });
