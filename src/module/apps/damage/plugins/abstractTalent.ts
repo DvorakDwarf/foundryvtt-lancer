@@ -10,13 +10,11 @@ export class AbstractTalent {
   data?: DamageHudData;
 
   //AccDiffHudPlugin requirements
-  //There is most likely a way to do this in TS. If you know, tell me so I can do it right
-  //@ts-expect-error pinkie promise we will init it
-  slug: string;
-  //@ts-expect-error pinkie promise we will init it
-  lid: string;
-  //@ts-expect-error pinkie promise we will init it
-  talentRank: number;
+  //These need to be initialized by the extending plugin
+  slug: string = "i-was-not-initialized";
+  lid: string = "i_was_not_initialized";
+  talentRank: number = 0;
+
   static category: "acc" | "diff" | "talentWindow" = "talentWindow";
   category: "acc" | "diff" | "talentWindow" = "talentWindow";
   static kind: "damage" = "damage";
@@ -59,6 +57,10 @@ export class AbstractTalent {
 
   //Dehydrated requirements
   hydrate(data: DamageHudData, target?: DamageHudTarget) {
+    if (this.slug === "i-was-not-initialized" || this.lid === "i_was_not_initialized" || this.talentRank == 0) {
+      console.error(`${LANCER.log_prefix} slug/lid/talentRank were not initialized from AbstractTalent`);
+    }
+
     //Property 'talents' does not exist on type 'AutomationOptions'
     //It does tho ?
     //If the setting is off, do not proceed
@@ -70,7 +72,6 @@ export class AbstractTalent {
 
     this.data = data;
 
-    console.log(`${LANCER.log_prefix} ${this.slug} is hydrated`);
     //Figure out whether we are in a situation where this talent is visible and then if we should start active
     if (this.visible) {
       this.talent(data, target);
