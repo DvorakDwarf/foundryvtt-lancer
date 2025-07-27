@@ -183,7 +183,7 @@ export class LancerCombatHistory {
       | LancerFlowState.TechAttackRollData
   ) {
     if (!data.acc_diff) {
-      console.error(`${LANCER.log_prefix}Accuracy/difficulty data missing!`);
+      console.error(`${LANCER.log_prefix} Cannot serialize action to combat history. Accuracy/difficulty data missing!`);
       return;
     }
 
