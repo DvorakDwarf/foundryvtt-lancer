@@ -10,7 +10,7 @@ import { BoundedNum } from "../../../source-template";
 import { TotalDamage } from "../data";
 
 function isDangerZone(heat?: BoundedNum): boolean {
-  if (heat == undefined || heat.max === undefined) return false;
+  if (heat == undefined || !heat.max) return false;
 
   return heat.value >= heat.max / 2;
 }
@@ -190,7 +190,7 @@ export class Nuke_2 extends AbstractTalent implements DamageHudCheckboxPluginDat
 
   get visible(): boolean {
     //Should really be an error
-    if (this.data === undefined) return false;
+    if (!this.data) return false;
 
     //This talent does not apply to tech attacks
     if (this.data.base.tech) return false;

@@ -64,7 +64,7 @@ export class CombinedArms_2 extends AbstractTalent implements AccDiffHudCheckbox
 
 function findLastHitWeaponType(actorId: string | null): WeaponType | undefined {
   const history = getHistory();
-  if (history === undefined) return undefined;
+  if (!history) return undefined;
 
   //Getting all actions is kind of a waste
   const actions = history
@@ -116,17 +116,17 @@ export class CombinedArms_3 extends AbstractTalent implements AccDiffHudCheckbox
   //The unique logic of the talent
   //Name defined from SampleTalent
   talent(data: AccDiffHudData, target?: AccDiffHudTarget) {
-    if (data.targets.length > 0 && target === undefined) return;
+    if (data.targets.length > 0 && !target) return;
 
     if (data.windowType === AccDiffWindowType.Basic) return;
 
     const currentType = data.weapon.weaponType;
     if (currentType === null) return;
 
-    if (data.lancerActor?.id === undefined) return;
+    if (!data.lancerActor?.id) return;
 
     const lastWeaponType = findLastHitWeaponType(data.lancerActor.id);
-    if (lastWeaponType === undefined) return;
+    if (!lastWeaponType) return;
     if (lastWeaponType === currentType) return;
 
     this.active = true;

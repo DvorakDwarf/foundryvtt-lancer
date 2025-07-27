@@ -85,7 +85,7 @@ export class LancerCombatHistory {
   }
 
   newTurn(combatant: LancerCombatant | undefined) {
-    if (combatant === undefined) return;
+    if (!combatant) return;
 
     this.currentRound.turns.push({
       combatant,
@@ -93,7 +93,7 @@ export class LancerCombatHistory {
     });
   }
   undoTurn(combatant: LancerCombatant | undefined) {
-    if (combatant === undefined) return;
+    if (!combatant) return;
 
     this.currentRound.turns = this.currentRound.turns.filter((turn: HistoryTurn) => {
       return turn.combatant.actorId !== combatant.actorId;
@@ -107,7 +107,7 @@ export class LancerCombatHistory {
       | LancerFlowState.StatRollData
       | LancerFlowState.TechAttackRollData
   ): HistoryAction {
-    if (data.acc_diff === undefined) throw new TypeError(`Accuracy/difficulty data missing!`);
+    if (!data.acc_diff) throw new TypeError(`Accuracy/difficulty data missing!`);
 
     const acc_diff = data.acc_diff;
 
@@ -182,7 +182,7 @@ export class LancerCombatHistory {
       | LancerFlowState.StatRollData
       | LancerFlowState.TechAttackRollData
   ) {
-    if (data.acc_diff === undefined) {
+    if (!data.acc_diff) {
       console.error(`${LANCER.log_prefix}Accuracy/difficulty data missing!`);
       return;
     }

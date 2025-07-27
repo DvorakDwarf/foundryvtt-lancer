@@ -235,7 +235,7 @@ async function _rollDamage(
     damage.val = Object.values(plugins)
       .sort((p: RollModifier, q: RollModifier) => q.rollPrecedence - p.rollPrecedence)
       .reduce((roll: string, p: RollModifier) => {
-        if (p.modifyRoll === undefined) return roll;
+        if (!p.modifyRoll) return roll;
         return p.modifyRoll(roll);
       }, damage.val);
   }

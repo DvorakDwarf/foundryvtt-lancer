@@ -9,7 +9,7 @@ import { HistoryHitResult } from "../../../combat/lancer-combat-history";
 
 //Is this laggy?
 function getMisses(actorId?: string | null): HistoryHitResult[] {
-  if (actorId === undefined) return [];
+  if (!actorId) return [];
 
   const actions = getHistory()?.getAllActions(actorId) ?? [];
 
@@ -59,7 +59,7 @@ export default class Brutal_3 extends AbstractTalent implements AccDiffHudCheckb
   //The unique logic of the talent
   //Name defined from SampleTalent
   talent(data: AccDiffHudData, target?: AccDiffHudTarget) {
-    if (data.targets.length > 0 && target === undefined) return;
+    if (data.targets.length > 0 && !target) return;
 
     //We enable the checkbox if there has been at least one miss
     this.active = getMisses(data.lancerActor?.id).length > 0;

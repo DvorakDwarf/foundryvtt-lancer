@@ -37,7 +37,7 @@ export default class Brawler_1 extends AbstractTalent implements AccDiffHudCheck
 
   //The unique logic of the talent
   talent(data: AccDiffHudData, target?: AccDiffHudTarget) {
-    if (data.targets.length > 0 && target === undefined) return;
+    if (data.targets.length > 0 && !target) return;
 
     if (data.windowType === AccDiffWindowType.Basic) return;
 
@@ -45,7 +45,7 @@ export default class Brawler_1 extends AbstractTalent implements AccDiffHudCheck
     // A brawler targeting somebody that isn't grappled by themselves still benefits.
     // Not aware of how it can be avoided, short of detecting other tokens nearby and
     // then not enabling the option by default. (or something elaborate)
-    if (target?.target === undefined) return;
+    if (!target?.target) return;
     if (!target?.target.actor?.system.statuses.grappled) return;
 
     if (data.weapon.weaponType !== WeaponType.Melee) return;

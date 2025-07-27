@@ -36,7 +36,7 @@ export default class Duelist_1 extends AbstractTalent implements AccDiffHudCheck
 
   //The unique logic of the talent
   talent(data: AccDiffHudData, target?: AccDiffHudTarget) {
-    if (data.targets.length > 0 && target === undefined) return;
+    if (data.targets.length > 0 && !target) return;
 
     if (data.windowType === AccDiffWindowType.Basic) return;
 

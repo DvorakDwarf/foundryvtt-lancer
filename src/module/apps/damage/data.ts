@@ -111,7 +111,7 @@ export class DamageHudWeapon {
       bonusDamage: this.bonusDamage,
     };
     for (const plugin of Object.values(this.plugins)) {
-      if (plugin.modifyDamages === undefined) continue;
+      if (!plugin.modifyDamages) continue;
       damages = plugin.modifyDamages(damages);
     }
 
@@ -209,7 +209,7 @@ export class DamageHudBase {
       bonusDamage: this.bonusDamage,
     };
     for (const plugin of Object.values(this.plugins)) {
-      if (plugin.modifyDamages === undefined) continue;
+      if (!plugin.modifyDamages) continue;
       damages = plugin.modifyDamages(damages);
     }
 
@@ -334,7 +334,7 @@ export class DamageHudTarget {
       bonusDamage: this.bonusDamage,
     };
     for (const plugin of Object.values(this.plugins)) {
-      if (plugin.modifyDamages === undefined) continue;
+      if (!plugin.modifyDamages) continue;
       damages = plugin.modifyDamages(damages, this);
     }
 

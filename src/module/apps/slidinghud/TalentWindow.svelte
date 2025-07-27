@@ -15,7 +15,7 @@
   $: visibleTalents = determineTalents(targets);
 
   function determineTalents(targets: AccDiffHudTarget[] | DamageHudTarget[] | undefined) {
-    if (targets === undefined) return [];
+    if (!targets) return [];
     //Maybe eventually have a small checklist under targets for target-specific talents
 
     const basePlugins = Object.values(base.plugins);

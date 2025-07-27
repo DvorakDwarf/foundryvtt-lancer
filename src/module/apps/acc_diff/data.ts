@@ -105,7 +105,7 @@ export class AccDiffHudWeapon {
   //Is there an integrated melee weapon?
   get mount(): FittingSize | null {
     const actor = this.#data?.lancerActor;
-    if (actor === undefined) return null;
+    if (!actor) return null;
 
     if (actor.is_mech()) {
       // @ts-expect-error

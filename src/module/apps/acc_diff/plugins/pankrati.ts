@@ -39,16 +39,16 @@ export default class Pankrati_1 extends AbstractTalent implements AccDiffHudChec
   //The unique logic of the talent
   //Name defined from SampleTalent
   talent(data: AccDiffHudData, target?: AccDiffHudTarget) {
-    if (data.targets.length > 0 && target === undefined) return;
+    if (data.targets.length > 0 && !target) return;
 
     if (data.windowType === AccDiffWindowType.Basic) return;
 
     if (data.weapon.weaponType !== WeaponType.Melee) return;
 
-    if (target?.target === undefined) return;
+    if (!target?.target) return;
     const statuses = target?.target.actor?.system.statuses;
 
-    if (statuses === undefined) return;
+    if (!statuses) return;
     //slow is different from slowed??
     //@ts-expect-error from console.log I can tell slow is there, works for now
     if (statuses.immobilized || statuses.slowed || statuses.slow) {
