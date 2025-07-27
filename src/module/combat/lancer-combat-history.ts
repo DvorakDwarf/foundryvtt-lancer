@@ -1,4 +1,5 @@
-import { AccDiffHudBase, AccDiffHudData, AccDiffHudPluginData, Cover } from "../apps/acc_diff";
+import { LancerActor } from "../actor/lancer-actor";
+import { Cover } from "../apps/acc_diff";
 import { LANCER } from "../config";
 import { FittingSize, WeaponType } from "../enums";
 import { LancerFlowState } from "../flows/interfaces";
@@ -7,15 +8,43 @@ import { LancerCombatant } from "./lancer-combat";
 
 //Whenever an AccDiff is submitted, history is appended
 
+//Perhaps should be a type + class
+function getStats(actor?: LancerActor | null): {
+  hp?: BoundedNum;
+  heat?: BoundedNum;
+  structure?: BoundedNum;
+  stress?: BoundedNum;
+} {
+  const heat = actor?.hasHeatcap() ? actor.system.heat : undefined;
+
+  const structure = actor?.is_mech() || actor?.is_npc() ? actor.system.structure : undefined;
+
+  const stress = actor?.is_mech() || actor?.is_npc() ? actor.system.stress : undefined;
+
+  const hp = actor?.system.hp;
+
+  return {
+    hp,
+    heat,
+    structure,
+    stress,
+  };
+}
+
 //We redefine targets/base/weapon to avoid infinite recursion from token/plugins
 type HistoryTarget = {
-  target_id: string;
+  actorUUID: string;
   accuracy: number;
   difficulty: number;
   cover: Cover;
   consumeLockOn: boolean;
   prone: boolean;
   stunned: boolean;
+  // As of the beginning of the action
+  hp?: BoundedNum;
+  heat?: BoundedNum;
+  structure?: BoundedNum;
+  stress?: BoundedNum;
 };
 
 type HistoryWeapon = {
@@ -49,9 +78,12 @@ type HistoryAction = {
   base: HistoryBase;
   type: string;
   hit_results: HistoryHitResult[];
-  //Both of these are as of the beginning of the action
+  // Both of these are as of the beginning of the action
+  // The action-taker's stats
   hp?: BoundedNum;
   heat?: BoundedNum;
+  structure?: BoundedNum;
+  stress?: BoundedNum;
 };
 
 type HistoryTurn = {
@@ -71,9 +103,9 @@ export class LancerCombatHistory {
   get currentRound(): HistoryRound {
     return this.rounds[this.rounds.length - 1];
   }
-  getCurrentTurn(actorId: string | null | undefined): HistoryTurn | undefined {
+  getCurrentTurn(actorUUID?: string | null): HistoryTurn | undefined {
     return this.currentRound.turns.find((turn: HistoryTurn) => {
-      return turn.combatant.actorId === actorId;
+      return turn.combatant.actor?.uuid === actorUUID;
     });
   }
 
@@ -96,7 +128,7 @@ export class LancerCombatHistory {
     if (!combatant) return;
 
     this.currentRound.turns = this.currentRound.turns.filter((turn: HistoryTurn) => {
-      return turn.combatant.actorId !== combatant.actorId;
+      return turn.combatant.actor?.uuid !== combatant.actor?.uuid;
     });
   }
 
@@ -112,25 +144,31 @@ export class LancerCombatHistory {
     const acc_diff = data.acc_diff;
 
     const newTargets: HistoryTarget[] = acc_diff.targets.map(target => {
+      const stats = getStats(target.target.actor);
       return {
-        target_id: target.target.id,
+        actorUUID: target.target.actor!.uuid, //Can this be undefined?
         accuracy: target.accuracy,
         difficulty: target.difficulty,
         cover: target.cover,
         consumeLockOn: target.consumeLockOn,
         prone: target.prone,
         stunned: target.stunned,
+        hp: stats.hp,
+        heat: stats.heat,
+        structure: stats.structure,
+        stress: stats.stress,
         // ...target leads to recursion :(,
       };
     });
 
     const newWeapon = {
+      mount: acc_diff.weapon.mount,
+      weaponType: acc_diff.weapon.weaponType,
       accurate: acc_diff.weapon.accurate,
       inaccurate: acc_diff.weapon.inaccurate,
       seeking: acc_diff.weapon.seeking,
       engaged: acc_diff.weapon.engaged,
-      mount: acc_diff.weapon.mount,
-      weaponType: acc_diff.weapon.weaponType,
+
       // same with ...acc_diff.weapon
     };
 
@@ -154,25 +192,17 @@ export class LancerCombatHistory {
       });
     }
 
-    const actor = acc_diff.lancerActor;
-    const hp = actor?.system.hp;
-    let heat: BoundedNum = {
-      min: 0,
-      max: 0,
-      value: 0,
-    };
-    if (actor?.hasHeatcap()) {
-      heat = actor?.system.heat;
-    }
-
+    const stats = getStats(acc_diff.lancerActor);
     return {
       weapon: newWeapon,
       targets: newTargets,
       base: newBase,
       type: data.type,
       hit_results: newHitResults,
-      hp,
-      heat,
+      hp: stats.hp,
+      heat: stats.heat,
+      structure: stats.structure,
+      stress: stats.stress,
     };
   }
   newAction(
@@ -189,22 +219,22 @@ export class LancerCombatHistory {
 
     const action = this.dataToAction(data);
 
-    const actorId = data.acc_diff.lancerActor?.id;
-    if (typeof actorId !== "string") return;
+    const actorUUID = data.acc_diff.lancerActor?.uuid;
+    if (typeof actorUUID !== "string") return;
 
     for (let turn of this.currentRound.turns) {
-      if (turn.combatant.actorId !== actorId) continue;
+      if (turn.combatant.actor?.uuid !== actorUUID) continue;
 
       turn.actions.push(action);
       break;
     }
   }
 
-  getAllActions(actorId: string | null): HistoryAction[] {
+  getAllActions(actorUUID: string | null): HistoryAction[] {
     let actions = [];
     for (const round of this.rounds) {
       for (const turn of round.turns) {
-        if (turn.combatant.actorId !== actorId) continue;
+        if (turn.combatant.actor?.uuid !== actorUUID) continue;
         for (const action of turn.actions) {
           actions.push(action);
         }
