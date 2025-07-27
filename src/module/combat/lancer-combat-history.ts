@@ -34,7 +34,6 @@ function getStats(actor?: LancerActor | null): {
 //We redefine targets/base/weapon to avoid infinite recursion from token/plugins
 type HistoryTarget = {
   actorUUID: string;
-  targetId: string;
   accuracy: number;
   difficulty: number;
   cover: Cover;
@@ -104,16 +103,9 @@ export class LancerCombatHistory {
   get currentRound(): HistoryRound {
     return this.rounds[this.rounds.length - 1];
   }
-
-  getCurrentActorTurn(actorUUID?: string | null): HistoryTurn | undefined {
+  getCurrentTurn(actorUUID?: string | null): HistoryTurn | undefined {
     return this.currentRound.turns.find((turn: HistoryTurn) => {
       return turn.combatant.actor?.uuid === actorUUID;
-    });
-  }
-  // getCurrentActorTurn() preferred
-  getCurrentCombatantTurn(combatantId?: string | null): HistoryTurn | undefined {
-    return this.currentRound.turns.find((turn: HistoryTurn) => {
-      return turn.combatant.id === combatantId;
     });
   }
 
@@ -136,12 +128,7 @@ export class LancerCombatHistory {
     if (!combatant) return;
 
     this.currentRound.turns = this.currentRound.turns.filter((turn: HistoryTurn) => {
-      //Fallback to combatant id
-      if (!turn.combatant.actor || !combatant.actor) {
-        return turn.combatant.id !== combatant.id;
-      } else {
-        return turn.combatant.actor.uuid !== combatant.actor.uuid;
-      }
+      return turn.combatant.actor?.uuid !== combatant.actor?.uuid;
     });
   }
 
@@ -160,7 +147,6 @@ export class LancerCombatHistory {
       const stats = getStats(target.target.actor);
       return {
         actorUUID: target.target.actor!.uuid, //Can this be undefined?
-        targetId: target.target.id,
         accuracy: target.accuracy,
         difficulty: target.difficulty,
         cover: target.cover,
@@ -244,24 +230,11 @@ export class LancerCombatHistory {
     }
   }
 
-  getAllActorActions(actorUUID: string | null): HistoryAction[] {
+  getAllActions(actorUUID: string | null): HistoryAction[] {
     let actions = [];
     for (const round of this.rounds) {
       for (const turn of round.turns) {
         if (turn.combatant.actor?.uuid !== actorUUID) continue;
-        for (const action of turn.actions) {
-          actions.push(action);
-        }
-      }
-    }
-
-    return actions;
-  }
-  getAllCombatantActions(combatantId: string | null): HistoryAction[] {
-    let actions = [];
-    for (const round of this.rounds) {
-      for (const turn of round.turns) {
-        if (turn.combatant.id !== combatantId) continue;
         for (const action of turn.actions) {
           actions.push(action);
         }
