@@ -68,7 +68,7 @@ function findLastHitWeaponType(actorUUID: string | null): WeaponType | undefined
 
   //Getting all actions is kind of a waste
   const actions = history
-    .getAllActions(actorUUID)
+    .getAllActorActions(actorUUID)
     .filter(action => {
       for (const hit_result of action.hit_results) {
         if (hit_result.hit) return true;

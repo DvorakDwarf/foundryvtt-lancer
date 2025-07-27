@@ -11,7 +11,7 @@ import { HistoryHitResult } from "../../../combat/lancer-combat-history";
 function getMisses(actorUUID?: string | null): HistoryHitResult[] {
   if (!actorUUID) return [];
 
-  const actions = getHistory()?.getAllActions(actorUUID) ?? [];
+  const actions = getHistory()?.getAllActorActions(actorUUID) ?? [];
 
   let misses = [];
   for (const action of actions.reverse()) {
