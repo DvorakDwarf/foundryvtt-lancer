@@ -157,14 +157,12 @@ export function isTalentAvailable(actor: LancerActor | undefined, lid: string, t
   return false;
 }
 
-//Guiness has already been called to claim the longest one-liner record
 export function getCombat(): LancerCombat | null {
   return canvas!.scene!.tokens.entries().next().value[1].combatant.combat;
 }
-export function getHistory(): LancerCombatHistory | undefined {
+export function getHistory(): LancerCombatHistory | null {
   const serializedHistory = getCombat()?.flags.lancer.history;
-
-  return serializedHistory ? new LancerCombatHistory(serializedHistory.rounds) : undefined;
+  return serializedHistory ? new LancerCombatHistory(serializedHistory.rounds) : null;
 }
 
 // Should use AccDiffHudData.windowType
