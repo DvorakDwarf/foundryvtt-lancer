@@ -1,4 +1,5 @@
-import { AccDiffHudBase, AccDiffHudData, AccDiffHudPluginData, Cover } from "../apps/acc_diff";
+import { LancerActor } from "../actor/lancer-actor";
+import { Cover } from "../apps/acc_diff";
 import { LANCER } from "../config";
 import { FittingSize, WeaponType } from "../enums";
 import { LancerFlowState } from "../flows/interfaces";
@@ -7,15 +8,43 @@ import { LancerCombatant } from "./lancer-combat";
 
 //Whenever an AccDiff is submitted, history is appended
 
+//Perhaps should be a type/class
+function getStats(actor?: LancerActor | null): {
+  hp?: BoundedNum;
+  heat?: BoundedNum;
+  structure?: BoundedNum;
+  stress?: BoundedNum;
+} {
+  const heat = actor?.hasHeatcap() ? actor.system.heat : undefined;
+
+  const structure = actor?.is_mech() || actor?.is_npc() ? actor.system.structure : undefined;
+
+  const stress = actor?.is_mech() || actor?.is_npc() ? actor.system.stress : undefined;
+
+  const hp = actor?.system.hp;
+
+  return {
+    hp,
+    heat,
+    structure,
+    stress,
+  };
+}
+
 //We redefine targets/base/weapon to avoid infinite recursion from token/plugins
 type HistoryTarget = {
-  target_id: string;
+  targetId: string;
   accuracy: number;
   difficulty: number;
   cover: Cover;
   consumeLockOn: boolean;
   prone: boolean;
   stunned: boolean;
+  // As of the beginning of the action
+  hp?: BoundedNum;
+  heat?: BoundedNum;
+  structure?: BoundedNum;
+  stress?: BoundedNum;
 };
 
 type HistoryWeapon = {
@@ -49,9 +78,12 @@ type HistoryAction = {
   base: HistoryBase;
   type: string;
   hit_results: HistoryHitResult[];
-  //Both of these are as of the beginning of the action
+  // Both of these are as of the beginning of the action
+  // The action-taker's stats
   hp?: BoundedNum;
   heat?: BoundedNum;
+  structure?: BoundedNum;
+  stress?: BoundedNum;
 };
 
 type HistoryTurn = {
@@ -112,14 +144,19 @@ export class LancerCombatHistory {
     const acc_diff = data.acc_diff;
 
     const newTargets: HistoryTarget[] = acc_diff.targets.map(target => {
+      const stats = getStats(target.target.actor);
       return {
-        target_id: target.target.id,
+        targetId: target.target.id,
         accuracy: target.accuracy,
         difficulty: target.difficulty,
         cover: target.cover,
         consumeLockOn: target.consumeLockOn,
         prone: target.prone,
         stunned: target.stunned,
+        hp: stats.hp,
+        heat: stats.heat,
+        structure: stats.structure,
+        stress: stats.stress,
         // ...target leads to recursion :(,
       };
     });
@@ -154,25 +191,17 @@ export class LancerCombatHistory {
       });
     }
 
-    const actor = acc_diff.lancerActor;
-    const hp = actor?.system.hp;
-    let heat: BoundedNum = {
-      min: 0,
-      max: 0,
-      value: 0,
-    };
-    if (actor?.hasHeatcap()) {
-      heat = actor?.system.heat;
-    }
-
+    const stats = getStats(acc_diff.lancerActor);
     return {
       weapon: newWeapon,
       targets: newTargets,
       base: newBase,
       type: data.type,
       hit_results: newHitResults,
-      hp,
-      heat,
+      hp: stats.hp,
+      heat: stats.heat,
+      structure: stats.structure,
+      stress: stats.stress,
     };
   }
   newAction(
@@ -183,7 +212,9 @@ export class LancerCombatHistory {
       | LancerFlowState.TechAttackRollData
   ) {
     if (!data.acc_diff) {
-      console.error(`${LANCER.log_prefix} Cannot serialize action to combat history. Accuracy/difficulty data missing!`);
+      console.error(
+        `${LANCER.log_prefix} Cannot serialize action to combat history. Accuracy/difficulty data missing!`
+      );
       return;
     }
 
