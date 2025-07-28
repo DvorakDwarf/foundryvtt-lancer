@@ -3,7 +3,7 @@ import { slugify } from "../../../util/lid";
 import { DamageHudCheckboxPluginData, DamageHudPluginCodec } from "./plugin";
 import { DamageType } from "../../../enums";
 import { AbstractTalent } from "./abstractTalent";
-import { TotalDamage } from "../data";
+import { DamageHudData, TotalDamage } from "../data";
 import { LancerActor } from "../../../actor/lancer-actor";
 import { LancerItem } from "../../../item/lancer-item";
 
@@ -44,9 +44,9 @@ export default class Brawler_2 extends AbstractTalent implements DamageHudCheckb
     };
   }
 
-  get visible(): boolean {
+  isVisible(data: DamageHudData): boolean {
     //This talent does not apply to tech attacks
-    if (this.data?.base.tech) return false;
+    if (data.base.tech) return false;
 
     return true;
   }

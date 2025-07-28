@@ -49,11 +49,7 @@ export class AbstractTalent {
     console.log("BEING SET, active = " + this.active);
   }
   // this talent is only visible when the owner has talent
-  // only enabled if conditions are satisfied
-  get visible() {
-    //Default to true because it should make it easier to catch related bugs
-    return true;
-  }
+  visible = false;
   disabled = false;
 
   //Dehydrated requirements
@@ -71,8 +67,10 @@ export class AbstractTalent {
     // Check if actor has talent
     if (!isTalentAvailable(data.lancerActor, this.lid, this.talentRank)) return;
 
-    //Figure out whether we are in a situation the talent applies
+    this.visible = this.isVisible(data);
     this.data = data;
+
+    //Figure out whether we are in a situation the talent applies
     if (this.visible) {
       this.talent(data, target);
     }
@@ -85,6 +83,10 @@ export class AbstractTalent {
   }
   talentReminder(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
     return false;
+  }
+  //Certain conditions may prevent talent from appearing, like wrong windowType
+  isVisible(data: AccDiffHudData): boolean {
+    return true;
   }
 
   //RollModifier

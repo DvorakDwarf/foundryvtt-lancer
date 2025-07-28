@@ -39,6 +39,13 @@ export default class Gunslinger_1 extends AbstractTalent implements AccDiffHudCh
     return Gunslinger_1.perUnknownTarget();
   }
 
+  isVisible(data: AccDiffHudData): boolean {
+    //This talent does not apply to tech attacks
+    if (data.windowType === AccDiffWindowType.Tech) return false;
+
+    return true;
+  }
+
   //The unique logic of the talent
   talent(data: AccDiffHudData, target?: AccDiffHudTarget) {
     if (data.targets.length > 0 && !target) return;
@@ -60,12 +67,5 @@ export default class Gunslinger_1 extends AbstractTalent implements AccDiffHudCh
     if (talentUsed !== undefined) return;
 
     this.active = true;
-  }
-
-  get visible(): boolean {
-    //This talent does not apply to tech attacks
-    if (this.data?.windowType === AccDiffWindowType.Tech) return false;
-
-    return true;
   }
 }

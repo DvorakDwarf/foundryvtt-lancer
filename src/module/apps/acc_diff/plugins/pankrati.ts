@@ -36,6 +36,13 @@ export default class Pankrati_1 extends AbstractTalent implements AccDiffHudChec
     return Pankrati_1.perUnknownTarget();
   }
 
+  isVisible(data: AccDiffHudData): boolean {
+    //This talent does not apply to tech attacks
+    if (data.windowType === AccDiffWindowType.Tech) return false;
+
+    return true;
+  }
+
   //The unique logic of the talent
   //Name defined from SampleTalent
   talent(data: AccDiffHudData, target?: AccDiffHudTarget) {
@@ -54,13 +61,6 @@ export default class Pankrati_1 extends AbstractTalent implements AccDiffHudChec
     if (statuses.immobilized || statuses.slowed || statuses.slow) {
       this.active = true; //We return here <-----
     }
-  }
-
-  get visible(): boolean {
-    //This talent does not apply to tech attacks
-    if (this.data?.windowType === AccDiffWindowType.Tech) return false;
-
-    return true;
   }
 
   //RollModifier Requirements

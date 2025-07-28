@@ -188,15 +188,12 @@ export class Nuke_2 extends AbstractTalent implements DamageHudCheckboxPluginDat
     Nuke_2.active = true;
   }
 
-  get visible(): boolean {
-    //Should really be an error
-    if (!this.data) return false;
-
+  isVisible(data: DamageHudData): boolean {
     //This talent does not apply to tech attacks
-    if (this.data.base.tech) return false;
+    if (data.base.tech) return false;
 
     //It's complicated
-    if (this.data.targets.length > 1) return false;
+    if (data.targets.length > 1) return false;
 
     return true;
   }

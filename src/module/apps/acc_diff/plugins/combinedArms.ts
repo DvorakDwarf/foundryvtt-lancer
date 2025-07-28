@@ -34,6 +34,13 @@ export class CombinedArms_2 extends AbstractTalent implements AccDiffHudCheckbox
     return ret;
   }
 
+  isVisible(data: AccDiffHudData): boolean {
+    //This talent does not apply to tech attacks
+    if (data.windowType === AccDiffWindowType.Tech) return false;
+
+    return true;
+  }
+
   //The unique logic of the talent
   //Name defined from SampleTalent
   talent(data: AccDiffHudData, target?: AccDiffHudTarget) {
@@ -41,13 +48,6 @@ export class CombinedArms_2 extends AbstractTalent implements AccDiffHudCheckbox
     if (data.weapon.weaponType === WeaponType.Melee) return;
 
     this.active = true;
-  }
-
-  get visible(): boolean {
-    //This talent does not apply to tech attacks
-    if (this.data?.windowType === AccDiffWindowType.Tech) return false;
-
-    return true;
   }
 
   //RollModifier Requirements
@@ -113,6 +113,13 @@ export class CombinedArms_3 extends AbstractTalent implements AccDiffHudCheckbox
     return CombinedArms_3.perUnknownTarget();
   }
 
+  isVisible(data: AccDiffHudData): boolean {
+    //This talent does not apply to tech attacks
+    if (data.windowType === AccDiffWindowType.Tech) return false;
+
+    return true;
+  }
+
   //The unique logic of the talent
   //Name defined from SampleTalent
   talent(data: AccDiffHudData, target?: AccDiffHudTarget) {
@@ -134,13 +141,6 @@ export class CombinedArms_3 extends AbstractTalent implements AccDiffHudCheckbox
     if (wasLastMelee === isCurrentMelee) return;
 
     this.active = true;
-  }
-
-  get visible(): boolean {
-    //This talent does not apply to tech attacks
-    if (this.data?.windowType === AccDiffWindowType.Tech) return false;
-
-    return true;
   }
 
   //RollModifier Requirements

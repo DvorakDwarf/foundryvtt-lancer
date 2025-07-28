@@ -48,11 +48,7 @@ export class AbstractTalent {
     console.log("BEING SET, active = " + this.active);
   }
   // this talent is only visible when the owner has talent
-  // only enabled if conditions are satisfied
-  get visible() {
-    //Default to true because it should make it easier to catch related bugs
-    return true;
-  }
+  visible = false;
   disabled = false;
 
   //Dehydrated requirements
@@ -70,6 +66,7 @@ export class AbstractTalent {
     // Check if actor has talent
     if (!isTalentAvailable(data.lancerActor, this.lid, this.talentRank)) return;
 
+    this.visible = this.isVisible(data);
     this.data = data;
 
     //Figure out whether we are in a situation where this talent is visible and then if we should start active
@@ -81,5 +78,9 @@ export class AbstractTalent {
   //If it's not initialized, set this.active to false
   talent(data: DamageHudData, target?: DamageHudTarget) {
     this.active = false;
+  }
+  //Certain conditions may prevent talent from appearing, like wrong windowType
+  isVisible(data: DamageHudData): boolean {
+    return true;
   }
 }

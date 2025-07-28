@@ -45,6 +45,15 @@ export default class Vanguard_1 extends AbstractTalent implements AccDiffHudChec
     return Vanguard_1.perUnknownTarget();
   }
 
+  //Returns true by default if not defined
+  //Defined in SampleTalent
+  isVisible(): boolean {
+    //This talent does not apply to tech attacks
+    if (this.data?.windowType === AccDiffWindowType.Tech) return false;
+
+    return true;
+  }
+
   //The unique logic of the talent
   //Name defined from SampleTalent
   talent(data: AccDiffHudData, target?: AccDiffHudTarget) {
@@ -70,15 +79,6 @@ export default class Vanguard_1 extends AbstractTalent implements AccDiffHudChec
         return true;
       });
     this.active = areTargetsNearby;
-  }
-
-  //Returns true by default if not defined
-  //Defined in SampleTalent
-  get visible(): boolean {
-    //This talent does not apply to tech attacks
-    if (this.data?.windowType === AccDiffWindowType.Tech) return false;
-
-    return true;
   }
 
   //RollModifier Requirements

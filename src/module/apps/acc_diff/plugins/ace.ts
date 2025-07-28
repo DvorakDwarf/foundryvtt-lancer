@@ -32,15 +32,15 @@ export default class Ace_1 extends AbstractTalent implements AccDiffHudCheckboxP
     return ret;
   }
 
+  isVisible(data: AccDiffHudData): boolean {
+    return data.windowType === AccDiffWindowType.Agility;
+  }
   //The unique logic of the talent
   //Name defined from SampleTalent
   talent(data: AccDiffHudData, target?: AccDiffHudTarget) {
     if (!data.lancerActor?.system.statuses.flying) return;
 
     this.active = true;
-  }
-  get visible(): boolean {
-    return this.data?.windowType === AccDiffWindowType.Agility;
   }
 
   //RollModifier Requirements
