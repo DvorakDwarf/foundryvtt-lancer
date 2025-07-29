@@ -161,7 +161,7 @@ export function getCombat(): LancerCombat | null {
   return canvas!.scene!.tokens.entries().next().value[1].combatant.combat;
 }
 export function getHistory(): LancerCombatHistory | null {
-  const serializedHistory = getCombat()?.flags.lancer.history;
+  const serializedHistory = getCombat()?.flags.lancer?.history;
   return serializedHistory ? new LancerCombatHistory(serializedHistory.rounds) : null;
 }
 
