@@ -9,7 +9,6 @@ import { AccDiffHudData, AccDiffHudDataSerialized } from "../apps/acc_diff";
 import { openSlidingHud } from "../apps/slidinghud";
 import { UUIDRef } from "../source-template";
 import { Flow, FlowState, Step } from "./flow";
-import { getCombat } from "../util/misc";
 import { AccDiffWindowType } from "../enums";
 
 const lp = LANCER.log_prefix;
@@ -104,7 +103,7 @@ async function printStatRollCard(state: FlowState<LancerFlowState.StatRollData>)
 
   //Update history
   if (state.data.acc_diff !== undefined) {
-    getCombat()?.receiveHistoryAction(state.data);
+    game.combat?.receiveHistoryAction(state.data);
   }
 
   await renderTemplateStep(state.actor, template, state.data);

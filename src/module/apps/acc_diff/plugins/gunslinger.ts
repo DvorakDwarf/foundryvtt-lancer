@@ -52,11 +52,14 @@ export default class Gunslinger_1 extends AbstractTalent implements AccDiffHudCh
 
     if (data.windowType === AccDiffWindowType.Basic) return;
 
-    // Talent only applies to Ranged
+    // Talent only applies to Ranged Aux
     if (data.weapon.weaponType === WeaponType.Melee) return;
     if (data.weapon.mount !== WeaponSize.Aux) return;
 
-    const actionsThisTurn = getHistory()?.getCurrentTurn(data.lancerActor?.id)?.actions;
+    const history = getHistory();
+    if (!history) return;
+
+    const actionsThisTurn = history.getCurrentTurn(data.lancerActor?.id)?.actions;
     //I don't think you get a choice of whether to use the talent now or later
     const talentUsed = actionsThisTurn?.find(action => {
       if (action.weapon.weaponType === WeaponType.Melee) return false;

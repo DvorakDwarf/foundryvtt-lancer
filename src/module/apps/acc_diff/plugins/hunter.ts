@@ -53,6 +53,7 @@ export default class Hunter_1 extends AbstractCardReminder implements AccDiffHud
     if (data.weapon.weaponType !== WeaponType.Melee) return false;
     if (data.weapon.mount !== WeaponSize.Aux) return false;
 
+    //If there is no history, talentReminder will end up returning true
     const actionsThisTurn = getHistory()?.getCurrentTurn(data.lancerActor?.id)?.actions;
     const talentUsed = actionsThisTurn?.find(action => {
       if (action.weapon.weaponType !== WeaponType.Melee) return false;

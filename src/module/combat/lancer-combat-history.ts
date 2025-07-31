@@ -127,6 +127,7 @@ export class LancerCombatHistory {
   undoTurn(combatant: LancerCombatant | undefined) {
     if (!combatant) return;
 
+    //If the combatant has multiple activations, this would remove all instances
     this.currentRound.turns = this.currentRound.turns.filter((turn: HistoryTurn) => {
       return turn.combatant.actorId !== combatant.actorId;
     });

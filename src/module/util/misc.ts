@@ -157,11 +157,8 @@ export function isTalentAvailable(actor: LancerActor | undefined, lid: string, t
   return false;
 }
 
-export function getCombat(): LancerCombat | null {
-  return canvas!.scene!.tokens.entries().next().value[1].combatant.combat;
-}
 export function getHistory(): LancerCombatHistory | null {
-  const serializedHistory = getCombat()?.flags.lancer?.history;
+  const serializedHistory = game.combat?.flags.lancer?.history;
   return serializedHistory ? new LancerCombatHistory(serializedHistory.rounds) : null;
 }
 

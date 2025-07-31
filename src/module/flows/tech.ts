@@ -11,7 +11,7 @@ import { ActivationType, AttackType, AccDiffWindowType } from "../enums";
 import { Flow, FlowState, Step } from "./flow";
 import { UUIDRef } from "../source-template";
 import { AttackFlag } from "./attack";
-import { getCombat, getHistory } from "../util/misc";
+import { getHistory } from "../util/misc";
 
 const lp = LANCER.log_prefix;
 
@@ -233,7 +233,7 @@ export async function printTechAttackCard(
 
   //Update history with attack
   if (state.data.acc_diff !== undefined) {
-    getCombat()?.receiveHistoryAction(state.data);
+    game.combat?.receiveHistoryAction(state.data);
   }
   console.log(getHistory());
 

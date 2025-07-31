@@ -50,7 +50,11 @@ export default class Duelist_1 extends AbstractTalent implements AccDiffHudCheck
     if (data.weapon.weaponType !== WeaponType.Melee) return;
     if (data.weapon.mount !== WeaponSize.Main) return;
 
-    const actionsThisTurn = getHistory()?.getCurrentTurn(data.lancerActor?.id)?.actions;
+    const history = getHistory();
+    if (!history) return;
+
+    const actionsThisTurn = history.getCurrentTurn(data.lancerActor?.id)?.actions;
+    console.log(actionsThisTurn);
     //I don't think you get a choice of whether to use the talent now or later
     const partisanUsed = actionsThisTurn?.find(action => {
       if (action.weapon.weaponType !== WeaponType.Melee) return false;

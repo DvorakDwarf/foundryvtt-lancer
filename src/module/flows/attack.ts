@@ -8,7 +8,6 @@ import { checkForHit } from "../helpers/automation/targeting";
 import { LancerItem } from "../item/lancer-item";
 import { UUIDRef } from "../source-template";
 import { SystemTemplates } from "../system-template";
-import { getCombat, getHistory } from "../util/misc";
 import { renderTemplateStep } from "./_render";
 import { Flow, FlowState, Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
@@ -557,7 +556,7 @@ export async function printAttackCard(
 
   //Update history
   if (state.data.acc_diff !== undefined) {
-    getCombat()?.receiveHistoryAction(state.data);
+    game.combat?.receiveHistoryAction(state.data);
   }
   return true;
 }
