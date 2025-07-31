@@ -5,6 +5,7 @@ import { WeaponSize, WeaponType } from "../enums";
 import { LancerFlowState } from "../flows/interfaces";
 import { BoundedNum } from "../source-template";
 import { LancerCombatant } from "./lancer-combat";
+import { LancerStatusEffects } from "../system-template";
 
 //Whenever an AccDiff is submitted, history is appended
 
@@ -14,20 +15,22 @@ function getStats(actor?: LancerActor | null): {
   heat?: BoundedNum;
   structure?: BoundedNum;
   stress?: BoundedNum;
+  statuses?: LancerStatusEffects;
 } {
-  const heat = actor?.hasHeatcap() ? actor.system.heat : undefined;
+  if (!actor) return {};
 
-  const structure = actor?.is_mech() || actor?.is_npc() ? actor.system.structure : undefined;
-
-  const stress = actor?.is_mech() || actor?.is_npc() ? actor.system.stress : undefined;
-
-  const hp = actor?.system.hp;
+  const heat = actor.hasHeatcap() ? actor.system.heat : undefined;
+  const structure = actor.is_mech() || actor.is_npc() ? actor.system.structure : undefined;
+  const stress = actor.is_mech() || actor.is_npc() ? actor.system.stress : undefined;
+  const hp = actor.system.hp;
+  const statuses = actor.system.statuses;
 
   return {
     hp,
     heat,
     structure,
     stress,
+    statuses,
   };
 }
 
@@ -45,6 +48,7 @@ type HistoryTarget = {
   heat?: BoundedNum;
   structure?: BoundedNum;
   stress?: BoundedNum;
+  statuses?: LancerStatusEffects;
 };
 
 type HistoryWeapon = {
@@ -78,12 +82,13 @@ type HistoryAction = {
   base: HistoryBase;
   type: string;
   hit_results: HistoryHitResult[];
-  // Both of these are as of the beginning of the action
+  // These are as of the beginning of the action
   // The action-taker's stats
   hp?: BoundedNum;
   heat?: BoundedNum;
   structure?: BoundedNum;
   stress?: BoundedNum;
+  statuses?: LancerStatusEffects;
 };
 
 type HistoryTurn = {
@@ -158,6 +163,7 @@ export class LancerCombatHistory {
         heat: stats.heat,
         structure: stats.structure,
         stress: stats.stress,
+        statuses: stats.statuses,
         // ...target leads to recursion :(,
       };
     });
@@ -203,6 +209,7 @@ export class LancerCombatHistory {
       heat: stats.heat,
       structure: stats.structure,
       stress: stats.stress,
+      statuses: stats.statuses,
     };
   }
   newAction(

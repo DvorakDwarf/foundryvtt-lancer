@@ -71,12 +71,13 @@ export class Nuke_1 extends AbstractTalent implements DamageHudCheckboxPluginDat
   }
 
   static perUnknownTarget(): Nuke_1 {
+    //Don't forget to reset static active
+    Nuke_1.active = false;
     let ret = new Nuke_1();
     return ret;
   }
   static perTarget(item: Token): Nuke_1 {
-    let ret = Nuke_1.perUnknownTarget();
-    return ret;
+    return Nuke_1.perUnknownTarget();
   }
 
   //The unique logic of the talent
@@ -90,13 +91,16 @@ export class Nuke_1 extends AbstractTalent implements DamageHudCheckboxPluginDat
 
     const recentActions = history.getCurrentTurn(actor.id)?.actions ?? [];
     const dangerZoneAttacks = recentActions.filter(action => {
-      return isDangerZone(action.heat);
+      const dangerZoneStatus = action.statuses?.dangerzone ?? false;
+      return dangerZoneStatus || isDangerZone(action.heat);
     });
     if (dangerZoneAttacks.length > 1) return;
 
-    if (!isDangerZone(actor.system.heat)) return;
-
-    Nuke_1.active = true;
+    if (actor.system.statuses.dangerzone) {
+      Nuke_1.active = true;
+    } else if (isDangerZone(actor.system.heat)) {
+      Nuke_1.active = true;
+    }
   }
 }
 
@@ -165,16 +169,16 @@ export class Nuke_2 extends AbstractTalent implements DamageHudCheckboxPluginDat
 
   //We do need to do all three to make sure all damage is converted when applicable
   static perRoll(): Nuke_2 {
+    Nuke_2.active = false;
+
     let ret = new Nuke_2();
     return ret;
   }
   static perUnknownTarget(): Nuke_2 {
-    let ret = new Nuke_2();
-    return ret;
+    return Nuke_2.perRoll();
   }
   static perTarget(item: Token): Nuke_2 {
-    let ret = Nuke_2.perUnknownTarget();
-    return ret;
+    return Nuke_2.perRoll();
   }
 
   //The unique logic of the talent
@@ -184,16 +188,20 @@ export class Nuke_2 extends AbstractTalent implements DamageHudCheckboxPluginDat
     const history = getHistory();
     if (!history) return;
 
-    const recentActions = getHistory()?.getCurrentTurn(data.lancerActor.id)?.actions ?? [];
+    const recentActions = history.getCurrentTurn(data.lancerActor.id)?.actions ?? [];
     const dangerZoneAttacks = recentActions.filter(action => {
-      if (action.type === "attack") return false;
-      return isDangerZone(action.heat);
+      if (action.type === "attack" || action.type === "tech") return false; //Basic or tech
+
+      const dangerZoneStatus = action.statuses?.dangerzone ?? false;
+      return dangerZoneStatus || isDangerZone(action.heat);
     });
     if (dangerZoneAttacks.length > 1) return;
 
-    if (!isDangerZone(data.lancerActor.system.heat)) return;
-
-    Nuke_2.active = true;
+    if (data.lancerActor.system.statuses.dangerzone) {
+      Nuke_2.active = true;
+    } else if (isDangerZone(data.lancerActor.system.heat)) {
+      Nuke_2.active = true;
+    }
   }
 
   isVisible(data: DamageHudData): boolean {
