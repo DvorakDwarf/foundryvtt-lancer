@@ -106,6 +106,10 @@ export class LancerCombatHistory {
     this.rounds = rounds ? rounds : [];
   }
   get currentRound(): HistoryRound {
+    if (this.rounds.length == 0) {
+      console.error(`${LANCER.log_prefix} LancerCombatHistory.currentRound() called with no rounds`);
+    }
+
     return this.rounds[this.rounds.length - 1] || { turns: [] };
   }
   getCurrentTurn(actorId: string | null | undefined): HistoryTurn | undefined {
