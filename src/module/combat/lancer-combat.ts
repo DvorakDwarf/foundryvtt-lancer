@@ -57,6 +57,7 @@ export class LancerCombat extends Combat {
   }
 
   override async nextRound(): Promise<this> {
+    console.log(this);
     await this.resetActivations();
 
     let newHistory = new LancerCombatHistory(this.flags.lancer.history.rounds);
