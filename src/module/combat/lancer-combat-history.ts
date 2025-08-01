@@ -106,7 +106,7 @@ export class LancerCombatHistory {
     this.rounds = rounds ? rounds : [];
   }
   get currentRound(): HistoryRound {
-    return this.rounds[this.rounds.length - 1];
+    return this.rounds[this.rounds.length - 1] || { turns: [] };
   }
   getCurrentTurn(actorId: string | null | undefined): HistoryTurn | undefined {
     return this.currentRound.turns.find((turn: HistoryTurn) => {
