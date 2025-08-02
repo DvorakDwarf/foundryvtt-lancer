@@ -86,11 +86,10 @@ export class Nuke_1 extends AbstractTalent implements DamageHudCheckboxPluginDat
 
     if (!actor?.is_mech()) return;
 
-    const history = getHistory();
-    if (!history) return;
+    const currentTurn = getHistory()?.getCurrentTurn(data.lancerActor?.id);
+    if (!currentTurn) return;
 
-    const recentActions = history.getCurrentTurn(actor.id)?.actions ?? [];
-    const dangerZoneAttacks = recentActions.filter(action => {
+    const dangerZoneAttacks = currentTurn.actions.filter(action => {
       const dangerZoneStatus = action.statuses?.dangerzone ?? false;
       return dangerZoneStatus || isDangerZone(action.heat);
     });
@@ -185,11 +184,10 @@ export class Nuke_2 extends AbstractTalent implements DamageHudCheckboxPluginDat
   talent(data: DamageHudData, target?: DamageHudTarget) {
     if (!data.lancerActor?.is_mech()) return false;
 
-    const history = getHistory();
-    if (!history) return;
+    const currentTurn = getHistory()?.getCurrentTurn(data.lancerActor?.id);
+    if (!currentTurn) return;
 
-    const recentActions = history.getCurrentTurn(data.lancerActor.id)?.actions ?? [];
-    const dangerZoneAttacks = recentActions.filter(action => {
+    const dangerZoneAttacks = currentTurn.actions.filter(action => {
       if (action.type === "attack" || action.type === "tech") return false; //Basic or tech
 
       const dangerZoneStatus = action.statuses?.dangerzone ?? false;
