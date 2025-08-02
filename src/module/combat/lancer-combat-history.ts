@@ -137,8 +137,20 @@ export class LancerCombatHistory {
     if (!combatant) return;
 
     //If the combatant has multiple activations, this would remove all instances
-    this.currentRound.turns = this.currentRound.turns.filter((turn: HistoryTurn) => {
-      return turn.combatant.actorId !== combatant.actorId;
+    let lastActivationIdx = -1;
+    this.currentRound.turns
+      .slice()
+      .reverse()
+      .forEach((turn: HistoryTurn, idx: number) => {
+        if (turn.combatant.id === combatant.id) lastActivationIdx = idx;
+      });
+
+    this.currentRound.turns = this.currentRound.turns.filter((_, idx: number) => {
+      if (idx === lastActivationIdx) {
+        return false;
+      } else {
+        return true;
+      }
     });
   }
 
